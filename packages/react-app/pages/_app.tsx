@@ -8,6 +8,8 @@ import type { AppProps } from "next/app";
 import { WagmiProvider, createConfig, http } from "wagmi";
 import { celo, celoAlfajores } from "wagmi/chains";
 import Layout from "../components/Layout";
+import { trpc } from '../utils/trpc';
+
 import "../styles/globals.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -38,6 +40,7 @@ const queryClient = new QueryClient();
 
 function App({ Component, pageProps }: AppProps) {
   return (
+
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
@@ -47,7 +50,8 @@ function App({ Component, pageProps }: AppProps) {
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
+
   );
 }
 
-export default App;
+export default trpc.withTRPC(App);
