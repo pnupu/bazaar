@@ -1,5 +1,3 @@
-// pages/create-item.tsx
-
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useCategories, useCreateItem } from '@/utils/api';

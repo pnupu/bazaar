@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import PrimaryButton from "@/components/Button";
 import { useWeb3 } from "@/contexts/useWeb3";
 import Image from "next/image";
