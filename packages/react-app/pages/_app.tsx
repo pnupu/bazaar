@@ -9,7 +9,7 @@ import { WagmiProvider, createConfig, http } from "wagmi";
 import { celo, celoAlfajores } from "wagmi/chains";
 import Layout from "../components/Layout";
 import { trpc } from '../utils/trpc';
-
+import { AuthProvider } from '../contexts/AuthContext';
 import "../styles/globals.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -38,19 +38,20 @@ const config = createConfig({
 
 const queryClient = new QueryClient();
 
+
 function App({ Component, pageProps }: AppProps) {
   return (
-
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
+          <AuthProvider>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </AuthProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
-
   );
 }
 

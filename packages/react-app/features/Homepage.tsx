@@ -5,7 +5,7 @@ import PrimaryButton from "@/components/Button";
 import Image from "next/image";
 import { useCategories, useItems } from "@/utils/api";
 import { useRouter } from 'next/router';
-
+import { useAuth } from '../contexts/AuthContext';
 import { type Item, type Category} from "prisma/prisma-client"
 import Link from 'next/link';
 
@@ -27,9 +27,12 @@ export default function BazaarHomepage() {
   const { data: categoriesData, isLoading: categoriesLoading } = useCategories();
   const { data: itemsData, isLoading: itemsLoading } = useItems();
   const router = useRouter();
+  const { isAuthenticated, user } = useAuth();
 
   const [categories, setCategories] = useState<string[]>([]);
   const [highlightedItems, setHighlightedItems] = useState<Listing[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
 
   const handleSellClick = () => {
     router.push('/create-item');
@@ -51,19 +54,26 @@ export default function BazaarHomepage() {
     }
   }, [itemsData]);
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+  };
+
   if (categoriesLoading || itemsLoading) {
     return <div>Loading...</div>;
   }
 
   return (
     <div className="flex flex-col items-center p-4">
-      <div className="w-full mb-4">
+      <form onSubmit={handleSearch} className="w-full mb-4">
         <input
           type="text"
-          placeholder="Search bar"
+          placeholder="Search items..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full p-2 border rounded"
         />
-      </div>
+      </form>
             
       <div className="flex flex-wrap justify-center gap-2 mb-4">
         {categories.map((category, index) => (

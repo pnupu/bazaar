@@ -1,17 +1,21 @@
 import { trpc } from './trpc';
 
 export const useCategories = () => {
-  return trpc.getCategories.useQuery();
+  return trpc.items.getCategories.useQuery();
 };
 
 export const useItems = () => {
-  return trpc.getItems.useQuery();
+  return trpc.items.getItems.useQuery();
 };
 
 export const useItem = (id: string) => {
-  return trpc.getItem.useQuery({ id });
+  return trpc.items.getItem.useQuery({ id });
 };
 
 export const useCreateItem = () => {
-  return trpc.createItem.useMutation();
+  return trpc.items.createItem.useMutation();
+};
+
+export const useSearchItems = (query: string) => {
+  return trpc.items.searchItems.useQuery({ query }, { enabled: !!query });
 };
