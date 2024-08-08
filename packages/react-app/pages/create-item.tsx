@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useCategories, useCreateItem } from '@/utils/api';
 import PrimaryButton from '@/components/Button';
 import { useWeb3 } from "@/contexts/useWeb3";
+import { uploadImage } from '@/utils/imageUpload';
 
 export default function CreateItemPage() {
   const router = useRouter();
@@ -13,7 +14,9 @@ export default function CreateItemPage() {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [categoryId, setCategoryId] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const {
     address,
@@ -22,16 +25,30 @@ export default function CreateItemPage() {
 
   useEffect(() => {
     getUserAddress();
-    console.log(address)
   }, []);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImageFile(e.target.files[0]);
+      setImagePreview(URL.createObjectURL(e.target.files[0]));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if(!address) {
-      console.log("No address")
+      console.log("No address");
       return;
     }
+
+    setIsUploading(true);
+
     try {
+      let imageUrl = '';
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile);
+      }
+
       await createItem.mutateAsync({
         title,
         description,
@@ -40,9 +57,11 @@ export default function CreateItemPage() {
         imageUrl,
         address,
       });
-      router.push('/'); 
+      router.push('/');
     } catch (error) {
       console.error('Error creating item:', error);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -104,23 +123,27 @@ export default function CreateItemPage() {
           </select>
         </div>
         <div className="mb-4">
-          <label htmlFor="imageUrl" className="block mb-2">Image URL</label>
+          <label htmlFor="image" className="block mb-2">Image</label>
           <input
-            type="url"
-            id="imageUrl"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
+            type="file"
+            id="image"
+            accept="image/*"
+            onChange={handleImageChange}
             className="w-full p-2 border rounded"
           />
         </div>
-
+        {imagePreview && (
+          <div className="mb-4">
+            <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover rounded" />
+          </div>
+        )}
         <PrimaryButton
-            title="Create Item"
-            onClick={() => handleSubmit}
-            widthFull
-            loading={createItem.isLoading}
-            disabled={createItem.isLoading || !title || !description || !price || !categoryId}
-            className="mt-4"
+          title="Create Item"
+          onClick={() => handleSubmit}
+          widthFull
+          loading={createItem.isLoading || isUploading}
+          disabled={createItem.isLoading || isUploading || !title || !description || !price || !categoryId}
+          className="mt-4"
         />
       </form>
     </div>

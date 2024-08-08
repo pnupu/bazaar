@@ -97,7 +97,7 @@ export default function BazaarHomepage() {
           <div key={item.id} className="border border-gray-300 rounded-lg overflow-hidden flex flex-col shadow-sm">
             <div className="w-full h-48 relative overflow-hidden">
               <img
-                src={`https://via.placeholder.com/400x300.png?text=${encodeURIComponent(item.title)}`}
+                src={item.imageUrl ?? `https://via.placeholder.com/400x300.png?text=${encodeURIComponent(item.title)}`}
                 alt={item.title}
                 className="w-full h-full object-cover"
               />
