@@ -30,6 +30,7 @@ export default function Home() {
     };
     if (address) {
       getData();
+      localStorage.setItem('userAddress', address);
     }
   }, [address]);
 

@@ -25,6 +25,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     console.log("use Auth")
+    console.log("Address", address)
+    console.log("userQuery.data", userQuery.data)
     if (address && userQuery.data) {
       setIsAuthenticated(true);
       setUser({

@@ -23,6 +23,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   items     Item[]
+  conversations Conversation[] @relation("UserConversations")
+  messages Message[]
 }
 
 model Category {
@@ -44,4 +46,23 @@ model Item {
   sellerId    String
   category    Category @relation(fields: [categoryId], references: [id])
   categoryId  String
+}
+
+
+model Conversation {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  participants User[] @relation("UserConversations")
+  messages   Message[]
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  sender    User     @relation(fields: [senderId], references: [id])
+  senderId  String
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  conversationId String
 }
