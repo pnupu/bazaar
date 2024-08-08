@@ -64,7 +64,7 @@ export default function BazaarHomepage() {
   }
 
   return (
-    <div className="flex flex-col items-center p-4">
+    <div className="flex flex-col items-center px-4 py-6 max-w-7xl mx-auto">
       <form onSubmit={handleSearch} className="w-full mb-4">
         <input
           type="text"

@@ -73,7 +73,17 @@ export default function Home() {
     }
   }
 
-  return (
+  if (!address) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-xl font-semibold">Please install Metamask and connect.</div>
+      </div>
+    );
+  }
+
+  return <BazaarHomepage />;
+
+  /*return (
     <div className="flex flex-col justify-center items-center">
       {!address && (
         <div className="h1">Please install Metamask and connect.</div>
@@ -155,7 +165,7 @@ export default function Home() {
                         />
                     </div>
                 </>
-            )} */}
-    </div>
-  );
+            )} */
+    //</div>
+  //);
 }
