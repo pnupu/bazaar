@@ -28,7 +28,7 @@ export default function ItemDetailPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { address, getUserAddress, sendCUSD, signTransaction, } = useWeb3();
 
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState('');
   const [comment, setComment] = useState('');
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
   const updateItemMutation = useUpdateItem();
@@ -53,6 +53,11 @@ export default function ItemDetailPage() {
   const getOfferStatus = trpc.chat.getOfferStatus.useQuery({ itemId: id as string }, {
     enabled: !!id,
   });
+
+  const sellerFeedbackQuery = trpc.user.getUserFeedback.useQuery(
+    { userId: item?.sellerId || '' },
+    { enabled: !!item?.sellerId }
+  );
 
   useEffect(() => {
     getUserAddress()
@@ -88,7 +93,7 @@ export default function ItemDetailPage() {
 
       await addFeedbackMutation.mutateAsync({
         itemId: item.id,
-        rating,
+        rating: Number(rating),
         comment,
         signature,
       });
@@ -372,10 +377,10 @@ export default function ItemDetailPage() {
             <label className="block mb-2">Rating (1-5)</label>
             <input
               type="number"
-              min="1"
+              min="0"
               max="5"
               value={rating}
-              onChange={(e) => setRating(Number(e.target.value))}
+              onChange={(e) => setRating(e.target.value)}
               className="w-full p-2 border rounded"
             />
           </div>
@@ -391,7 +396,7 @@ export default function ItemDetailPage() {
             title={isSubmittingFeedback ? "Submitting..." : "Submit Feedback"}
             onClick={handleSubmitFeedback}
             widthFull
-            disabled={isSubmittingFeedback || rating === 0 || comment === ''}
+            disabled={isSubmittingFeedback || Number(rating) < 0  || Number(rating) > 5 || comment === ''}
           />
         </div>
       )}

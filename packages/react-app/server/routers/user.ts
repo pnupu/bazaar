@@ -31,4 +31,12 @@ export const userRouter = router({
       });
       return updatedUser;
     }),
+    getUserFeedback: publicProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      return ctx.prisma.feedback.findMany({
+        where: { sellerId: input.userId },
+        select: { rating: true },
+      });
+    }),
 });

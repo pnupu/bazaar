@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearch", "fullTextIndex", "postgresqlExtensions"]
@@ -13,8 +10,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-// prisma/schema.prisma
 
 model Offer {
   id             String       @id @default(cuid())
@@ -32,7 +27,6 @@ model Offer {
   item           Item         @relation(fields: [itemId], references: [id])
 }
 
-
 model User {
   id                  String         @id @default(cuid())
   address             String         @unique
@@ -43,11 +37,12 @@ model User {
   updatedAt           DateTime       @updatedAt
   sellerConversations Conversation[] @relation("SellerConversations")
   buyerConversations  Conversation[] @relation("BuyerConversations")
-  buyerOffers  Offer[] @relation("BuyerOffers")
-  sellerOffers Offer[] @relation("SellerOffers")
+  buyerOffers         Offer[]        @relation("BuyerOffers")
+  sellerOffers        Offer[]        @relation("SellerOffers")
   messages            Message[]
   Item                Item[]
-  feedbackGiven Feedback[]
+  feedbackGiven       Feedback[]     @relation("BuyerFeedback")
+  feedbackReceived    Feedback[]     @relation("SellerFeedback")
 }
 
 enum ItemStatus {
@@ -65,8 +60,10 @@ model Feedback {
   updatedAt DateTime @updatedAt
   item      Item     @relation(fields: [itemId], references: [id])
   itemId    String   @unique
-  buyer     User     @relation(fields: [buyerId], references: [id])
+  buyer     User     @relation("BuyerFeedback", fields: [buyerId], references: [id])
   buyerId   String
+  seller    User     @relation("SellerFeedback", fields: [sellerId], references: [id])
+  sellerId  String
 }
 
 model Item {
@@ -100,7 +97,7 @@ model Conversation {
   buyer     User      @relation("BuyerConversations", fields: [buyerId], references: [id])
   item      Item      @relation(fields: [itemId], references: [id])
   messages  Message[]
-  offers Offer[]
+  offers    Offer[]
 }
 
 model Message {

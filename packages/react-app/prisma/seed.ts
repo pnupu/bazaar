@@ -198,6 +198,7 @@ async function main() {
       signature: 'mockSignature123', // In a real scenario, this would be a valid signature
       itemId: specialItem.id,
       buyerId: buyer.id,
+      sellerId: seller.id,
     },
   })
   
