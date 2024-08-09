@@ -55,7 +55,10 @@ export const itemsRouter = router({
         price: z.number(),
         categoryId: z.string(),
         imageUrl: z.string().optional(),
-        address: z.string()
+        address: z.string(),
+        latitude: z.number().optional(),
+        longitude: z.number().optional(),
+        placeName: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
         const { address, ...itemData } = input;
