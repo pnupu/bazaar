@@ -5,6 +5,7 @@ import { useWeb3 } from "@/contexts/useWeb3";
 import PrimaryButton from '@/components/Button';
 import pusherClient from '../../utils/pusher';
 import Link from 'next/link';
+import ChatHeader from '@/components/ChatHeader';
 
 
 interface OfferModalProps {
@@ -118,26 +119,18 @@ const ChatPage = () => {
   const otherUser = isUserSeller ? conversation.buyer : conversation.seller;
 
   return (
-    <div className="flex flex-col h-screen bg-white">
-      <div className="bg-white shadow-sm p-4">
-        <button onClick={() => router.push('/chats')} className="text-blue-500 font-semibold">
-          &lt; Back to Chats
-        </button>
-        <h2 className="text-xl font-bold mt-2">
-          Chat with {otherUser.username || 'Unknown User'}
-        </h2>
-        <Link href={`/item/${conversation.itemId}`}>
-          <p className="text-sm text-gray-500">Item: {conversation.item.title}</p>
-        </Link>
-        <p className="text-sm text-gray-500">
-          {isUserSeller ? 'Selling' : 'Buying'}
-        </p>
-      </div>
+    <div className="flex flex-col h-screen bg-white pb-16">
+
+      <ChatHeader 
+        otherUser={otherUser}
+        item={conversation.item}
+        isBuying={!isUserSeller}
+      />
 
       {/* Chat area - scrollable */}
-      <div className="flex-1 overflow-y-auto pb-40" ref={messagesEndRef}>
+      <div className="flex-1 overflow-y-auto pb-40 pt-4" ref={messagesEndRef}>
         {conversation.offers.map(offer => (
-          <div key={offer.id} className="mb-4 p-3 bg-yellow-100 rounded shadow">
+          <div key={offer.id} className="mb-4 p-3 bg-amber-300 rounded shadow w-[70%] rounded-2xl text-center mx-auto">
             <p className="font-semibold">You made an offer: ${offer.amount}</p>
             {offer.status === 'PENDING' && offer.sellerId === userQuery.data?.id && (
               <button className="mt-2 text-blue-500 underline">Accept Offer</button>

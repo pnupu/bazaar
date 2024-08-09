@@ -164,7 +164,7 @@ export default function CreateItemPage() {
             id="image"
             accept="image/*"
             onChange={handleImageChange}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded bg-white"
           />
         </div>
         <div className="mb-4">
@@ -181,7 +181,7 @@ export default function CreateItemPage() {
             <button
               type="button"
               onClick={handleShowMap}
-              className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="ml-2 px-4 py-2 bg-gradient-to-r from-[#fcb603] to-[#f98307] text-white rounded hover:bg-blue-600"
             >
               Show Map
             </button>
@@ -199,7 +199,7 @@ export default function CreateItemPage() {
           widthFull
           loading={createItem.isLoading || isUploading}
           disabled={createItem.isLoading || isUploading || !title || !description || !price  } //|| !location}
-          className="mt-4 bg-gradient-to-r from-[#fcb603] to-[#f98307]"
+          className="mt-4 bg-gradient-to-r from-[#fcb603] to-[#f98307] text-white"
         />
       </form>
       {locationName &&
