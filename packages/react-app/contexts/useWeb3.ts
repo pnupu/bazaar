@@ -116,7 +116,7 @@ export const useWeb3 = () => {
     return tokenURIs;
   };
 
-  const signTransaction = async () => {
+  const signTransaction = async (message: string) => {
     const walletClient = createWalletClient({
       transport: custom(window.ethereum),
       chain: celoAlfajores,
@@ -129,7 +129,7 @@ export const useWeb3 = () => {
     console.log("string", hexToString(hex))
     const res = await walletClient.signMessage({
       account: address,
-      message: stringToHex("Hello from Celo Composer MiniPay Template!"),
+      message: message,
     });
 
     return res;

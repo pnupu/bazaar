@@ -16,3 +16,11 @@ export const useCreateItem = () => {
 export const useSearchItems = (query: string) => {
   return trpc.items.searchItems.useQuery({ query }, { enabled: !!query });
 };
+
+export const useUpdateItem = () => {
+  return trpc.items.updateItem.useMutation();
+};
+
+export const useUpdateItemStatus = () => {
+  return trpc.items.updateItemStatus.useMutation();
+};

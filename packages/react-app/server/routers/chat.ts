@@ -1,4 +1,4 @@
-import { router, protectedProcedure } from '../trpc';
+import { router, protectedProcedure, publicProcedure } from '../trpc';
 import { z } from 'zod';
 import { prisma } from '../prisma';
 import Pusher from 'pusher';
@@ -171,8 +171,13 @@ export const chatRouter = router({
         },
       });
 
-      // Trigger Pusher event for new offer
-      // ... (implement Pusher trigger here)
+      await prisma.offer.deleteMany({
+        where: {
+          NOT: {
+            id: offer.id
+          }
+        }
+      })
 
       return offer;
     }),
@@ -211,6 +216,22 @@ export const chatRouter = router({
 
       return updatedOffer;
     }),
-
+    getOfferStatus: publicProcedure
+    .input(z.object({ itemId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const offer = await ctx.prisma.offer.findFirst({
+        where: {
+          itemId: input.itemId,
+          status: 'ACCEPTED',
+        },
+        select: {
+          buyerId: true,
+          status: true,
+          amount: true,
+        },
+      });
+  
+      return offer;
+    }),
 });
 
