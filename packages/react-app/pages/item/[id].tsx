@@ -7,14 +7,15 @@ import PrimaryButton from '@/components/Button';
 import Map from '@/components/Map';
 import Image from 'next/image';
 import 'leaflet/dist/leaflet.css';
-import { LatLngExpression } from 'leaflet';
+import Chat from '@/components/Chat';
+
 
 export default function ItemDetailPage() {
   const router = useRouter();
   const { id } = router.query;
   const { data: item, isLoading, error } = useItem(id as string);
   const [isOpen, setIsOpen] = useState(false);
-  const singaporeCenter: LatLngExpression = [1.3521, 103.8198];
+  const [showChat, setShowChat] = useState(false);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading item</div>;
@@ -54,7 +55,7 @@ export default function ItemDetailPage() {
         <div className="mt-4">
           <PrimaryButton
             title="Contact Seller"
-            onClick={() => console.log('Contact seller clicked')}
+            onClick={() => setShowChat(true)}
             widthFull
           />
         </div>
@@ -65,6 +66,11 @@ export default function ItemDetailPage() {
         onClose={() => setIsOpen(!isOpen)} 
         locationName={item.placeName ?? ""} 
         coordinates={[item.latitude, item.longitude]} />
+      )}
+      {showChat && (
+        <div className="fixed inset-0 z-50 bg-white">
+          <Chat itemId={item.id} sellerId={item.sellerId}/>
+        </div>
       )}
     </div>
   );

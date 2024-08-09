@@ -1,83 +1,153 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useWeb3 } from "@/contexts/useWeb3";
+import { trpc } from '../utils/trpc';
 import pusherClient from '../utils/pusher';
+import PrimaryButton from './Button';
+
+interface Participant {
+  id: string;
+  address: string;
+  username: string | null;
+  bio: string | null;
+  avatarUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface Message {
   id: string;
-  username: string;
-  message: string;
+  content: string;
+  senderId: string;
+  createdAt: string;
+  conversationId: string;
 }
 
-const Chat: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = useState('');
-  const [username, setUsername] = useState('');
+interface Conversation {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  participants: Participant[];
+  messages: Message[];
+}
+
+const Chat: React.FC<{ itemId: string; sellerId: string }> = ({ itemId, sellerId }) => {
+  const { address } = useWeb3();
+  const [message, setMessage] = useState('');
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const { data: conversationsData } = trpc.chat.getConversations.useQuery();
+  const { mutate: sendMessage } = trpc.chat.sendMessage.useMutation();
+
+  const { mutate: getOrCreateConversation } = trpc.chat.getOrCreateConversation.useMutation({
+    onSuccess: (data) => {
+      setSelectedConversation(data);
+      setConversations(prev => [data, ...prev.filter(c => c.id !== data.id)]);
+    },
+  });
 
   useEffect(() => {
-    // Prompt for username when component mounts
-    const user = prompt('Enter your username:');
-    if (user) setUsername(user);
+  if (itemId && sellerId) {
+    getOrCreateConversation({ sellerId });
+  }
+}, [itemId, sellerId]);
 
-    // Subscribe to the channel
-    const channel = pusherClient.subscribe('chat-channel');
-    
-    channel.bind('message', (data: Message) => {
-      setMessages(prevMessages => [...prevMessages, data]);
-    });
+  useEffect(() => {
+    if (selectedConversation) {
+      const channel = pusherClient.subscribe(`private-conversation-${selectedConversation.id}`);
+      channel.bind('new-message', (data: Message) => {
+        setSelectedConversation(prev => 
+          prev ? { ...prev, messages: [...prev.messages, data] } : null
+        );
+      });
 
-    return () => {
-      pusherClient.unsubscribe('chat-channel');
-    };
-  }, []);
+      return () => {
+        pusherClient.unsubscribe(`private-conversation-${selectedConversation.id}`);
+      };
+    }
+  }, [selectedConversation]);
 
-  const sendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputMessage.trim()) return;
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [selectedConversation?.messages]);
 
-    const newMessage = {
-      id: Date.now().toString(),
-      username,
-      message: inputMessage.trim()
-    };
-
-    // Send message to your API
-    await fetch('/api/send-message', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newMessage),
-    });
-
-    setInputMessage('');
+  const handleSendMessage = () => {
+    if (message.trim() && selectedConversation) {
+      sendMessage({ conversationId: selectedConversation.id, content: message });
+      setMessage('');
+    }
   };
 
+
   return (
-    <div className="max-w-md mx-auto mt-10">
-      <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <div className="mb-4 h-64 overflow-y-auto">
-          {messages.map((msg) => (
-            <div key={msg.id} className="mb-2">
-              <span className="font-bold">{msg.username}: </span>
-              <span>{msg.message}</span>
+    <div className="flex flex-col h-full">
+      {!selectedConversation ? (
+        <div className="flex-1 overflow-y-auto">
+          <h2 className="text-xl font-bold mb-4">Your Conversations</h2>
+          {conversations.map(conv => (
+            <div 
+              key={conv.id} 
+              className="p-4 border-b cursor-pointer hover:bg-gray-100"
+              onClick={() => setSelectedConversation(conv)}
+            >
+              <p className="font-semibold">
+                {conv.participants.find(p => p.id !== address)?.username || 'Unknown User'}
+              </p>
+              <p className="text-sm text-gray-500 truncate">
+                {conv.messages[0]?.content || 'No messages yet'}
+              </p>
             </div>
           ))}
         </div>
-        <form onSubmit={sendMessage} className="flex">
-          <input
-            type="text"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            placeholder="Type a message..."
-          />
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2"
-          >
-            Send
-          </button>
-        </form>
-      </div>
+      ) : (
+        <>
+          <div className="bg-gray-200 p-4">
+            <button onClick={() => setSelectedConversation(null)} className="text-blue-500">
+              &lt; Back
+            </button>
+            <h2 className="text-xl font-bold">
+              {selectedConversation.participants.find(p => p.id !== address)?.username || 'Unknown User'}
+            </h2>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            {selectedConversation.messages.map(msg => (
+              <div 
+                key={msg.id} 
+                className={`mb-2 ${msg.senderId === address ? 'text-right' : 'text-left'}`}
+              >
+                <div 
+                  className={`inline-block p-2 rounded-lg ${
+                    msg.senderId === address ? 'bg-blue-500 text-white' : 'bg-gray-200'
+                  }`}
+                >
+                  {msg.content}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {new Date(msg.createdAt).toLocaleTimeString()}
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+          <div className="border-t p-4">
+            <div className="flex">
+              <input
+                type="text"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                className="flex-1 border rounded-l-lg p-2"
+                placeholder="Type a message..."
+              />
+              <PrimaryButton
+                title="Send"
+                onClick={handleSendMessage}
+                className="rounded-l-none"
+              />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
