@@ -3,15 +3,14 @@
 import { useState, useEffect } from "react";
 import PrimaryButton from "@/components/Button";
 import Image from "next/image";
-import { useCategories, useItems } from "@/utils/api";
+import { useItems } from "@/utils/api";
 import { useRouter } from 'next/router';
 import { useAuth } from '../contexts/AuthContext';
-import { type Item, type Category} from "prisma/prisma-client"
+import { type Item} from "prisma/prisma-client"
 import Link from 'next/link';
 
 type Listing = {
     status: string;
-    category: { id: string; name: string };
     id: string;
     createdAt: string;
     updatedAt: string;
@@ -20,16 +19,13 @@ type Listing = {
     price: number;
     imageUrl: string | null;
     sellerId: string;
-    categoryId: string;
 }
 
 export default function BazaarHomepage() {
-  const { data: categoriesData, isLoading: categoriesLoading } = useCategories();
   const { data: itemsData, isLoading: itemsLoading } = useItems();
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
 
-  const [categories, setCategories] = useState<string[]>([]);
   const [highlightedItems, setHighlightedItems] = useState<Listing[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -38,11 +34,6 @@ export default function BazaarHomepage() {
     router.push('/create-item');
   };
 
-  useEffect(() => {
-    if (categoriesData) {
-      setCategories(categoriesData.map((cat: any) => cat.name));
-    }
-  }, [categoriesData]);
 
   useEffect(() => {
     if (itemsData) {
@@ -59,7 +50,7 @@ export default function BazaarHomepage() {
     router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
   };
 
-  if (categoriesLoading || itemsLoading) {
+  if (itemsLoading) {
     return <div>Loading...</div>;
   }
 
@@ -74,14 +65,6 @@ export default function BazaarHomepage() {
           className="w-full p-2 border rounded"
         />
       </form>
-            
-      <div className="flex flex-wrap justify-center gap-2 mb-4">
-        {categories.map((category, index) => (
-          <button key={index} className="px-3 py-1 rounded">
-            {category}
-          </button>
-        ))}
-      </div>
         
     <PrimaryButton
         title="Sell something"
@@ -104,9 +87,6 @@ export default function BazaarHomepage() {
             </div>
             <div className="p-4">
               <h3 className="text-lg font-semibold text-gray-800">{item.title}</h3>
-              <p className="text-sm text-gray-600 mt-1">
-                {item.category.name}
-              </p>
               <p className="text-sm text-gray-800 mt-2">Price: ${item.price.toFixed(2)}</p>
             </div>
           </div>

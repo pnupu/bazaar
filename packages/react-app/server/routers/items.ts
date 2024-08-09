@@ -1,19 +1,17 @@
 import { router, publicProcedure } from '../trpc';
 import { z } from 'zod';
 import { prisma } from '../prisma';
-import { Category } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 
 
 export const itemsRouter = router({
-    getCategories: publicProcedure.query(async () => {
-      const categories = await prisma.category.findMany();
-      return categories;
-    }),
       
     getItems: publicProcedure.query(async () => {
       const items = await prisma.item.findMany({
-        include: { category: true },
+        take: 20,
+        orderBy: {
+          updatedAt: "desc"
+        }
       });
       return items;
     }),
@@ -23,37 +21,16 @@ export const itemsRouter = router({
       .query(async ({ input }) => {
         const item = await prisma.item.findUnique({
           where: { id: input.id },
-          include: { category: true },
         });
         return item;
       }),
   
-  
-    getItemsWithCategory: publicProcedure
-      .input(
-        z.object({
-          categoryName: z.string()
-        })
-      )
-      .query(async ({input}) => {
-        return await prisma.item.findMany({
-          where: {
-            category: {
-              name: input.categoryName
-            }
-          },
-          include: {
-            category: true
-          }
-        })
-      }),
-  
+
     createItem: publicProcedure
       .input(z.object({
         title: z.string(),
         description: z.string(),
         price: z.number(),
-        categoryId: z.string(),
         imageUrl: z.string().optional(),
         address: z.string(),
         latitude: z.number().optional(),
@@ -97,7 +74,6 @@ export const itemsRouter = router({
 
       const items = await ctx.prisma.item.findMany({
         where: { sellerId: user.id },
-        include: { category: true },
         orderBy: { createdAt: 'desc' },
       });
 
@@ -113,7 +89,6 @@ export const itemsRouter = router({
             { description: { contains: input.query, mode: 'insensitive' } },
           ],
         },
-        include: { category: true },
       });
       return items;
     }),

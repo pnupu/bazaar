@@ -12,7 +12,6 @@ type Listing = {
   description: string;
   price: number;
   imageUrl: string | null;
-  category: { id: string; name: string };
   createdAt: string;
   updatedAt: string;
 }
@@ -79,9 +78,6 @@ export default function SearchPage() {
                 </div>
                 <div className="p-4">
                   <h3 className="text-lg font-semibold text-gray-800">{item.title}</h3>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {item.category.name}
-                  </p>
                   <p className="text-sm text-gray-800 mt-2">Price: ${item.price.toFixed(2)}</p>
                 </div>
               </div>

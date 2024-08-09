@@ -17,7 +17,6 @@ const Layout: FC<Props> = ({ children }) => {
             {children}
           </div>
         </div>
-        <Footer />
       </div>
     </>
   );

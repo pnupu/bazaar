@@ -100,18 +100,19 @@ export const useWeb3 = () => {
     });
 
     const [address] = await walletClient.getAddresses();
-    const nfts: any = await minipayNFTContract.read.getNFTsByAddress([
-      address,
-    ]);
+    // const nfts: any = await minipayNFTContract.read.getNFTsByAddress([
+    //   address,
+    // ]);
+
 
     const tokenURIs: string[] = [];
 
-    for (let i = 0; i < nfts.length; i++) {
-      const tokenURI: string = (await minipayNFTContract.read.tokenURI([
-        nfts[i],
-      ])) as string;
-      tokenURIs.push(tokenURI);
-    }
+    // for (let i = 0; i < nfts.length; i++) {
+    //   const tokenURI: string = (await minipayNFTContract.read.tokenURI([
+    //     nfts[i],
+    //   ])) as string;
+    //   tokenURIs.push(tokenURI);
+    // }
     return tokenURIs;
   };
 

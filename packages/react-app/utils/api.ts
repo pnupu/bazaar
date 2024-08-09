@@ -1,8 +1,5 @@
 import { trpc } from './trpc';
 
-export const useCategories = () => {
-  return trpc.items.getCategories.useQuery();
-};
 
 export const useItems = () => {
   return trpc.items.getItems.useQuery();
