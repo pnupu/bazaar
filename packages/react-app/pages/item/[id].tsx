@@ -12,10 +12,22 @@ import { LatLngExpression } from 'leaflet';
 import {
   stringToHex,
 } from "viem";
+import axios from 'axios';
+
 interface LocationData {
   city: string;
   country: string;
   position: LatLngExpression;
+}
+
+interface TransactionDetails {
+  blockNumber: string;
+  timeStamp: string;
+  from: string;
+  to: string;
+  value: string;
+  gasUsed: string;
+  confirmations: string;
 }
 
 export default function ItemDetailPage() {
@@ -38,6 +50,7 @@ export default function ItemDetailPage() {
   const [locationName, setLocationName] = useState<string | undefined>(undefined);
   const [coordinates, setCoordinates] = useState<[number, number]>([0, 0]);
   const [isSending, setIsSending] = useState(false);
+  const [transactionDetails, setTransactionDetails] = useState<TransactionDetails | null>(null);
 
   const addFeedbackMutation = trpc.items.addFeedback.useMutation();
   const getFeedbackQuery = trpc.items.getFeedback.useQuery({ itemId: id as string }, {
@@ -59,7 +72,29 @@ export default function ItemDetailPage() {
     { enabled: !!item?.sellerId }
   );
 
-  
+  const fetchTransactionDetails = async (txHash: string) => {
+    try {
+      const response = await axios.get(`https://explorer.celo.org/alfajores/api`, {
+        params: {
+          module: 'transaction',
+          action: 'gettxinfo',
+          txhash: txHash
+        }
+      });
+      console.log(response.data)
+      if (response.data.status === '1' && response.data.result) {
+        setTransactionDetails(response.data.result);
+        console.log(transactionDetails)
+      }
+    } catch (error) {
+      console.error('Error fetching transaction details:', error);
+    }
+  };
+  useEffect(() => {
+    if (item?.status === 'SOLD' && item.txHash) {
+      fetchTransactionDetails(item.txHash);
+    }
+  }, [item]);
 
   useEffect(() => {
     getUserAddress()
@@ -426,6 +461,26 @@ export default function ItemDetailPage() {
           <p>By: {getFeedbackQuery.data.buyer.username || getFeedbackQuery.data.buyer.address}</p>
         </div>
       )}
+      {item?.status === 'SOLD' && transactionDetails && (
+          <div className="mt-6 p-4 bg-gray-100 rounded-lg">
+            <h2 className="text-xl font-bold mb-2">Transaction Details</h2>
+            <p>Block Number: {transactionDetails.blockNumber}</p>
+            <p>Timestamp: {new Date(parseInt(transactionDetails.timeStamp) * 1000).toLocaleString()}</p>
+            <p>From: {transactionDetails.from}</p>
+            <p>To: {transactionDetails.to}</p>
+            <p>Value: {parseFloat(transactionDetails.value) / 1e18} CELO</p>
+            <p>Gas Used: {transactionDetails.gasUsed}</p>
+            <p>Confirmations: {transactionDetails.confirmations}</p>
+            <a 
+              href={`https://explorer.celo.org/alfajores/tx/${item.txHash}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:text-blue-700"
+            >
+              View on Celo Explorer
+            </a>
+          </div>
+        )}
     </div>
   );
 }
