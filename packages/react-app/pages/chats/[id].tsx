@@ -4,6 +4,7 @@ import { trpc } from '../../utils/trpc';
 import { useWeb3 } from "@/contexts/useWeb3";
 import PrimaryButton from '@/components/Button';
 import pusherClient from '../../utils/pusher';
+import Link from 'next/link';
 
 
 interface OfferModalProps {
@@ -125,7 +126,9 @@ const ChatPage = () => {
         <h2 className="text-xl font-bold">
           Chat with {otherUser.username || 'Unknown User'}
         </h2>
-        <p className="text-sm text-gray-500">Item: {conversation.item.title}</p>
+        <Link href={`/item/${conversation.itemId}`}>
+          <p className="text-sm text-gray-500">Item: {conversation.item.title}</p>
+        </Link>
         <p className="text-sm text-gray-500">
           {isUserSeller ? 'You are selling' : 'You are buying'}
         </p>

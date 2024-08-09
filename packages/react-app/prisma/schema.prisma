@@ -33,7 +33,6 @@ model Offer {
 }
 
 
-
 model User {
   id                  String         @id @default(cuid())
   address             String         @unique
@@ -48,12 +47,26 @@ model User {
   sellerOffers Offer[] @relation("SellerOffers")
   messages            Message[]
   Item                Item[]
+  feedbackGiven Feedback[]
 }
 
 enum ItemStatus {
   SOLD
   AVAILABLE
   DISABLED
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String
+  signature String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  item      Item     @relation(fields: [itemId], references: [id])
+  itemId    String   @unique
+  buyer     User     @relation(fields: [buyerId], references: [id])
+  buyerId   String
 }
 
 model Item {
@@ -69,9 +82,11 @@ model Item {
   latitude      Float?
   placeName     String?
   sellerId      String
+  txHash        String?
   seller        User           @relation(fields: [sellerId], references: [id])
   conversations Conversation[]
-  offers Offer[]
+  offers        Offer[]
+  feedback      Feedback?
 }
 
 model Conversation {

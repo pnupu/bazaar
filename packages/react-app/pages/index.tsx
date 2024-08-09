@@ -51,7 +51,7 @@ export default function Home() {
   async function signMessage() {
     setCUSDLoading(true);
     try {
-      await signTransaction();
+      // await signTransaction();
     } catch (error) {
       console.log(error);
     } finally {

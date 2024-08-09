@@ -9,7 +9,9 @@ import { trpc } from '@/utils/trpc';
 import { useWeb3 } from "@/contexts/useWeb3";
 import { uploadImage } from '@/utils/imageUpload';
 import { LatLngExpression } from 'leaflet';
-
+import {
+  stringToHex,
+} from "viem";
 interface LocationData {
   city: string;
   country: string;
@@ -24,7 +26,11 @@ export default function ItemDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedItem, setEditedItem] = useState(item);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const { address, getUserAddress, sendCUSD } = useWeb3();
+  const { address, getUserAddress, sendCUSD, signTransaction, } = useWeb3();
+
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
   const updateItemMutation = useUpdateItem();
 
   const [location, setLocation] = useState('');
@@ -33,7 +39,11 @@ export default function ItemDetailPage() {
   const [coordinates, setCoordinates] = useState<[number, number]>([0, 0]);
   const [isSending, setIsSending] = useState(false);
 
-
+  const addFeedbackMutation = trpc.items.addFeedback.useMutation();
+  const getFeedbackQuery = trpc.items.getFeedback.useQuery({ itemId: id as string }, {
+    enabled: !!id && item?.status === 'SOLD',
+  });
+  
   const getOrCreateConversation = trpc.chat.getOrCreateConversation.useMutation({});
   const updateItemStatusMutation = useUpdateItemStatus();
 
@@ -64,7 +74,34 @@ export default function ItemDetailPage() {
   const isBuyer = getOfferStatus.data?.buyerId === userQuery.data?.id;
   const isOfferAccepted = getOfferStatus.data?.status === 'ACCEPTED';
   const agreedAmount = getOfferStatus.data?.amount;
-  console.log(getOfferStatus.data)
+
+
+
+
+  const handleSubmitFeedback = async () => {
+    if (!item || !userQuery.data) return;
+
+    setIsSubmittingFeedback(true);
+    try {
+      const message = JSON.stringify({ itemId: item.id, rating, comment });
+      const signature = await signTransaction(stringToHex(message));
+
+      await addFeedbackMutation.mutateAsync({
+        itemId: item.id,
+        rating,
+        comment,
+        signature,
+      });
+
+      alert('Feedback submitted successfully!');
+      getFeedbackQuery.refetch();
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      alert('Failed to submit feedback. Please try again.');
+    } finally {
+      setIsSubmittingFeedback(false);
+    }
+  };
   const startChat = async () => {
     const conversation = await getOrCreateConversation.mutateAsync({ itemId: item.id });
     router.push(`/chats/${conversation.id}`);
@@ -116,6 +153,7 @@ export default function ItemDetailPage() {
       await updateItemStatusMutation.mutateAsync({
         id: item.id,
         status: 'SOLD',
+        txHash: tx.transactionHash,
       });
 
       // Refetch the item to get the updated status
@@ -300,7 +338,7 @@ export default function ItemDetailPage() {
         )}
         {!isOwner && !isEditing && (
           <>
-            {isBuyer && isOfferAccepted && (
+            {isBuyer && isOfferAccepted && !item.txHash && (
               <div className="mt-6">
                 <PrimaryButton
                   title={isSending ? "Processing..." : "Buy Now"}
@@ -326,6 +364,45 @@ export default function ItemDetailPage() {
         onClose={() => setIsOpen(false)} 
         locationName={locationName} 
         coordinates={coordinates} />
+      )}
+      {item.status === 'SOLD' && isBuyer && !getFeedbackQuery.data && (
+        <div className="mt-6 w-full max-w-md">
+          <h2 className="text-xl font-bold mb-4">Leave Feedback</h2>
+          <div className="mb-4">
+            <label className="block mb-2">Rating (1-5)</label>
+            <input
+              type="number"
+              min="1"
+              max="5"
+              value={rating}
+              onChange={(e) => setRating(Number(e.target.value))}
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block mb-2">Comment</label>
+            <textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              className="w-full p-2 border rounded"
+            />
+          </div>
+          <PrimaryButton
+            title={isSubmittingFeedback ? "Submitting..." : "Submit Feedback"}
+            onClick={handleSubmitFeedback}
+            widthFull
+            disabled={isSubmittingFeedback || rating === 0 || comment === ''}
+          />
+        </div>
+      )}
+
+      {getFeedbackQuery.data && (
+        <div className="mt-6 w-full max-w-md">
+          <h2 className="text-xl font-bold mb-4">Feedback</h2>
+          <p>Rating: {getFeedbackQuery.data.rating}/5</p>
+          <p>Comment: {getFeedbackQuery.data.comment}</p>
+          <p>By: {getFeedbackQuery.data.buyer.username || getFeedbackQuery.data.buyer.address}</p>
+        </div>
       )}
     </div>
   );
