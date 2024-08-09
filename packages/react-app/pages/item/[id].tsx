@@ -59,11 +59,13 @@ export default function ItemDetailPage() {
           />
         </div>
       </div>
-      <Map 
+      {(!!item.latitude && !!item.longitude ) && (
+        <Map 
         isOpen={isOpen} 
         onClose={() => setIsOpen(!isOpen)} 
-        locationName={'Singapore'} 
-        coordinates={singaporeCenter} />
+        locationName={item.placeName ?? ""} 
+        coordinates={[item.latitude, item.longitude]} />
+      )}
     </div>
   );
 }

@@ -45,7 +45,7 @@ export default function Map({ isOpen, onClose, locationName, coordinates }: Loca
                     as="h3"
                     className="text-lg font-medium leading-6 text-gray-900"
                   >
-                    Item Location: Singapore, SG
+                    Item Location: {locationName}
                   </DialogTitle>
                   <div className="mt-2" style={{ height: '400px', width: '100%' }}>
                     <MapContainer 

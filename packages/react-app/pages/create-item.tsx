@@ -5,6 +5,7 @@ import PrimaryButton from '@/components/Button';
 import { useWeb3 } from "@/contexts/useWeb3";
 import { uploadImage } from '@/utils/imageUpload';
 import { LatLngExpression } from 'leaflet';
+import Map from '@/components/Map'
 
 interface LocationData {
   city: string;
@@ -25,10 +26,11 @@ export default function CreateItemPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [location, setLocation] = useState('');
-  const [city, setCity] = useState('');
-  const [country, setCountry] = useState('');
-  const [position, setPosition] = useState<LatLngExpression | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [locationName, setLocationName] = useState('')
+
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+  const [coordinates, setCoordinates] = useState<[number, number]>([0, 0]);
 
   const {
     address,
@@ -54,13 +56,20 @@ export default function CreateItemPage() {
       throw new Error('Location not found. Please check your input and try again.');
     }
 
-    const { lat, lon, display_name } = data[0];
-    const [city, country] = display_name.split(', ').reverse();
-    const position: LatLngExpression = [parseFloat(lat), parseFloat(lon)];
+    const { lat, lon, display_name, address } = data[0];
+    const components = display_name.split(', ').reverse();
+ 
+    const firstComponent = components[0];
+    const ninthOrLastComponent = components[8] || components[components.length - 1];
+  
+    const country = firstComponent;
+    const city = ninthOrLastComponent;
+    const position: [number, number] = [parseFloat(lat), parseFloat(lon)];
 
+    setCoordinates(position);
+    setLocationName(city + ", " + country)
     return { city, country, position };
   };
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +82,7 @@ export default function CreateItemPage() {
 
     try {
 
-      const locationData = await fetchLocationData(location);
+      await fetchLocationData(location);
 
       let imageUrl = '';
       if (imageFile) {
@@ -87,10 +96,9 @@ export default function CreateItemPage() {
         categoryId,
         imageUrl,
         address,
-        /* location: {
-              latitude: locationData.position[0],
-              longitude: locationData.position[1],
-         }, */
+        latitude: coordinates[0],
+        longitude: coordinates[1],
+        placeName: locationName
       });
       router.push('/');
     } catch (error) {
@@ -101,6 +109,19 @@ export default function CreateItemPage() {
   };
 
   if (categoriesLoading) return <div>Loading categories...</div>;
+
+  const handleShowMap = async () => {
+    if (location) {
+      try {
+        await fetchLocationData(location);
+        setIsMapModalOpen(true);
+      } catch (error) {
+        setLocationError('Failed to load location data. Please try again.');
+      }
+    } else {
+      setLocationError('Please enter a location first.');
+    }
+  };
 
   return (
     <div className="flex flex-col items-center p-4">
@@ -178,7 +199,15 @@ export default function CreateItemPage() {
               placeholder="Enter city and country (e.g., London, UK)"
               className="flex-grow p-2 border rounded"
             />
+            <button
+              type="button"
+              onClick={handleShowMap}
+              className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Show Map
+            </button>
           </div>
+          {locationError && <p className="text-red-500 mt-1">{locationError}</p>}
         </div>
         {imagePreview && (
           <div className="mb-4">
@@ -194,6 +223,12 @@ export default function CreateItemPage() {
           className="mt-4"
         />
       </form>
+      <Map
+        isOpen={isMapModalOpen}
+        onClose={() => setIsMapModalOpen(false)}
+        locationName={locationName}
+        coordinates={coordinates}
+      />
     </div>
   );
 }
