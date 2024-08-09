@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearch", "fullTextIndex", "postgresqlExtensions"]
 }
 
@@ -14,58 +14,81 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  address   String   @unique
-  username  String?  @unique
-  bio       String?
-  avatarUrl String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  items     Item[]
-  conversations Conversation[] @relation("UserConversations")
-  messages Message[]
+// prisma/schema.prisma
+
+model Offer {
+  id             String       @id @default(cuid())
+  amount         Float
+  status         String       // "PENDING", "ACCEPTED", "REJECTED"
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  buyerId        String
+  buyer          User         @relation("BuyerOffers", fields: [buyerId], references: [id])
+  sellerId       String
+  seller         User         @relation("SellerOffers", fields: [sellerId], references: [id])
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  itemId         String
+  item           Item         @relation(fields: [itemId], references: [id])
 }
 
-model Category {
-  id    String @id @default(cuid())
-  name  String @unique
-  items Item[]
+
+
+model User {
+  id                  String         @id @default(cuid())
+  address             String         @unique
+  username            String?
+  bio                 String?
+  avatarUrl           String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  sellerConversations Conversation[] @relation("SellerConversations")
+  buyerConversations  Conversation[] @relation("BuyerConversations")
+  buyerOffers  Offer[] @relation("BuyerOffers")
+  sellerOffers Offer[] @relation("SellerOffers")
+  messages            Message[]
+  Item                Item[]
 }
+
 
 model Item {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  price       Float
-  imageUrl    String?
-  status      String   @default("ACTIVE") // e.g., "ACTIVE", "SOLD", "DELETED"
-  latitude    Float?
-  longitude   Float?
-  placeName   String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  seller      User     @relation(fields: [sellerId], references: [id])
-  sellerId    String
-  category    Category @relation(fields: [categoryId], references: [id])
-  categoryId  String
+  id            String         @id @default(cuid())
+  title         String
+  description   String
+  price         Float
+  imageUrl      String?
+  status        String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  longitude     Float?
+  latitude      Float?
+  placeName     String?
+  sellerId      String
+  seller        User           @relation(fields: [sellerId], references: [id])
+  conversations Conversation[]
+  offers Offer[]
 }
 
-
 model Conversation {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  participants User[] @relation("UserConversations")
-  messages   Message[]
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  sellerId  String
+  buyerId   String
+  itemId    String
+  seller    User      @relation("SellerConversations", fields: [sellerId], references: [id])
+  buyer     User      @relation("BuyerConversations", fields: [buyerId], references: [id])
+  item      Item      @relation(fields: [itemId], references: [id])
+  messages  Message[]
+  offers Offer[]
 }
 
 model Message {
-  id        String   @id @default(cuid())
-  content   String
-  createdAt DateTime @default(now())
-  sender    User     @relation(fields: [senderId], references: [id])
-  senderId  String
-  conversation Conversation @relation(fields: [conversationId], references: [id])
+  id             String       @id @default(cuid())
+  content        String
+  createdAt      DateTime     @default(now())
+  sender         User         @relation(fields: [senderId], references: [id])
+  senderId       String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
   conversationId String
 }

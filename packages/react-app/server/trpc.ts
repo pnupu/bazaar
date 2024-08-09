@@ -1,7 +1,6 @@
 
 import { z } from 'zod';
 import { prisma } from './prisma';
-import { Category } from '@prisma/client';
 import { initTRPC, TRPCError } from '@trpc/server';
 import { Context } from './context';
 

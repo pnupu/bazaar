@@ -3,17 +3,17 @@
 import { useState, useEffect } from "react";
 import PrimaryButton from "@/components/Button";
 import Image from "next/image";
-import { useCategories, useItems } from "@/utils/api";
+import { useItems } from "@/utils/api";
 import { useRouter } from 'next/router';
 import { useAuth } from '../contexts/AuthContext';
-import { type Item, type Category} from "prisma/prisma-client"
+import { type Item} from "prisma/prisma-client"
 import Link from 'next/link';
 import { Tab } from "@headlessui/react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { Input } from '@headlessui/react'
 
 type Listing = {
     status: string;
-    category: { id: string; name: string };
     id: string;
     createdAt: string;
     updatedAt: string;
@@ -22,11 +22,9 @@ type Listing = {
     price: number;
     imageUrl: string | null;
     sellerId: string;
-    categoryId: string;
 }
 
 export default function BazaarHomepage() {
-  const { data: categoriesData, isLoading: categoriesLoading } = useCategories();
   const { data: itemsData, isLoading: itemsLoading } = useItems();
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
@@ -54,20 +52,20 @@ export default function BazaarHomepage() {
     router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
   };
 
-  if (categoriesLoading || itemsLoading) {
+  if (itemsLoading) {
     return <div>Loading...</div>;
   }
 
   return (
     <div className="flex flex-col items-center px-4 py-6 max-w-7xl mx-auto">
-      <form onSubmit={handleSearch} className="w-full mb-4 relative">
-        <div className="relative">
-          <input
+      <form onSubmit={handleSearch} className="w-full mb-4 relative focus:ring-[#f98307] focus:border-[#f98307]">
+        <div className="relative focus:ring-[#f98307] focus:border-[#f98307]">
+          <Input
             type="text"
             placeholder=" Search items..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full border-2 border pr-10 pl-4 py-3 rounded-full focus:ring-[#f98307] focus:border-[#f98307] bg-white text-gray-900 placeholder-gray-500"
+            className="w-full border-2 border pr-10 pl-4 py-3 rounded-full bg-white text-gray-900 placeholder-gray-500"
           />
           <button 
             type="submit" 
@@ -98,9 +96,6 @@ export default function BazaarHomepage() {
                     </div>
                     <div className="p-6">
                       <h3 className="text-xl font-semibold text-gray-900 mb-2">{item.title}</h3>
-                      <p className="text-sm font-medium text-gray-500 mb-3">
-                        {item.category.name}
-                      </p>
                       <div className="flex justify-between items-center">
                         <p className="text-2xl font-bold text-gray-900">${item.price.toFixed(2)}</p>
 

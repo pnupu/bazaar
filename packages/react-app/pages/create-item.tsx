@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useCategories, useCreateItem } from '@/utils/api';
+import {  useCreateItem } from '@/utils/api';
 import PrimaryButton from '@/components/Button';
 import { useWeb3 } from "@/contexts/useWeb3";
 import { uploadImage } from '@/utils/imageUpload';
@@ -15,13 +15,11 @@ interface LocationData {
 
 export default function CreateItemPage() {
   const router = useRouter();
-  const { data: categories, isLoading: categoriesLoading } = useCategories();
   const createItem = useCreateItem();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
-  const [categoryId, setCategoryId] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -93,7 +91,6 @@ export default function CreateItemPage() {
         title,
         description,
         price: parseFloat(price),
-        categoryId,
         imageUrl,
         address,
         latitude: coordinates[0],
@@ -108,7 +105,6 @@ export default function CreateItemPage() {
     }
   };
 
-  if (categoriesLoading) return <div>Loading categories...</div>;
 
   const handleShowMap = async () => {
     if (location) {
@@ -162,23 +158,6 @@ export default function CreateItemPage() {
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="category" className="block mb-2">Category</label>
-          <select
-            id="category"
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            required
-            className="w-full p-2 border rounded"
-          >
-            <option value="">Select a category</option>
-            {categories?.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="mb-4">
           <label htmlFor="image" className="block mb-2">Image</label>
           <input
             type="file"
@@ -219,7 +198,7 @@ export default function CreateItemPage() {
           onClick={() => handleSubmit}
           widthFull
           loading={createItem.isLoading || isUploading}
-          disabled={createItem.isLoading || isUploading || !title || !description || !price || !categoryId } //|| !location}
+          disabled={createItem.isLoading || isUploading || !title || !description || !price  } //|| !location}
           className="mt-4"
         />
       </form>
