@@ -25,7 +25,7 @@ const ChatListPage = () => {
             const otherUser = isUserSeller ? conv.buyer : conv.seller;
             return (
               <Link href={`/chats/${conv.id}`} key={conv.id}>
-                <div className="border p-4 rounded-lg cursor-pointer hover:bg-gray-100">
+                <div className="border bg-white p-4 rounded-lg cursor-pointer hover:bg-gray-100">
                   <p className="font-semibold">{otherUser.username || 'Unknown User'}</p>
                   <p className="text-sm text-gray-500">Item: {conv.item.title}</p>
                   <p className="text-sm text-gray-500">

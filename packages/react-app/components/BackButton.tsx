@@ -22,7 +22,7 @@ const BackButton: React.FC<BackButtonProps> = ({ href }) => {
   return (
     <button
       onClick={handleClick}
-      className="flex items-center text-colors-primary hover:text-colors-primaryComp transition-colors"
+      className="flex items-center font-bold text-amber-500 hover:text-colors-primaryComp transition-colors"
     >
       <ArrowLeftIcon className="h-5 w-5 mr-1" />
       <span>Back</span>

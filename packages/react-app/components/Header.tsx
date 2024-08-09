@@ -55,7 +55,7 @@ export default function Header() {
             </Link>
           </div>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
             <Popover className="sm:hidden relative">
                 {({ open, close }) => (
                   <>
