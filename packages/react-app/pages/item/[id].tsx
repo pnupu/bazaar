@@ -81,10 +81,8 @@ export default function ItemDetailPage() {
           txhash: txHash
         }
       });
-      console.log(response.data)
       if (response.data.status === '1' && response.data.result) {
         setTransactionDetails(response.data.result);
-        console.log(transactionDetails)
       }
     } catch (error) {
       console.error('Error fetching transaction details:', error);
