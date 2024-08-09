@@ -171,8 +171,13 @@ export const chatRouter = router({
         },
       });
 
-      // Trigger Pusher event for new offer
-      // ... (implement Pusher trigger here)
+      await prisma.offer.deleteMany({
+        where: {
+          NOT: {
+            id: offer.id
+          }
+        }
+      })
 
       return offer;
     }),
