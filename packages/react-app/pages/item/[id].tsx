@@ -59,6 +59,8 @@ export default function ItemDetailPage() {
     { enabled: !!item?.sellerId }
   );
 
+  
+
   useEffect(() => {
     getUserAddress()
   }, [])
@@ -74,12 +76,14 @@ export default function ItemDetailPage() {
   if (error) return <div>Error loading item</div>;
   if (!item) return <div>Item not found</div>;
 
-
+  const sellerUsername = item.seller.username || item.seller.address;
   const isOwner = address === item.seller.address;
   const isBuyer = getOfferStatus.data?.buyerId === userQuery.data?.id;
   const isOfferAccepted = getOfferStatus.data?.status === 'ACCEPTED';
   const agreedAmount = getOfferStatus.data?.amount;
-
+  const sellerAverageRating = sellerFeedbackQuery.data
+  ? sellerFeedbackQuery.data.reduce((sum, feedback) => sum + feedback.rating, 0) / sellerFeedbackQuery.data.length
+  : 0;
 
 
 
@@ -96,6 +100,7 @@ export default function ItemDetailPage() {
         rating: Number(rating),
         comment,
         signature,
+        sellerId: item.sellerId
       });
 
       alert('Feedback submitted successfully!');
@@ -229,6 +234,18 @@ export default function ItemDetailPage() {
   return (
     <div className="flex flex-col items-center p-4">
       <div className="w-full max-w-md">
+      <div className="mb-4 p-4 bg-gray-100 rounded-lg">
+        <h2 className="text-xl font-bold mb-2">Seller Information</h2>
+        <p>Seller: {sellerUsername}</p>
+        {sellerFeedbackQuery.data?.length ? (
+          <>
+          <p>Average Rating: {sellerAverageRating.toFixed(1)} / 5</p>  
+          <p>Total Ratings: {sellerFeedbackQuery.data?.length || 0}</p>
+          </>
+        ): (
+          <p>The seller is new and doesn't have ratings</p>
+        )}
+      </div>
         {isEditing ? (
           <div>
             <Image

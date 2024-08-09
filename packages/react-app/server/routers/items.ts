@@ -190,6 +190,7 @@ export const itemsRouter = router({
       rating: z.number().min(1).max(5),
       comment: z.string(),
       signature: z.string(),
+      sellerId: z.string(),
     }))
     .mutation(async ({ input, ctx }) => {
       const { itemId, rating, comment, signature } = input;
@@ -218,6 +219,7 @@ export const itemsRouter = router({
           signature,
           item: { connect: { id: itemId } },
           buyer: { connect: { id: ctx.user.id } },
+          seller: {connect: {id: input.sellerId}}
         },
       });
 
