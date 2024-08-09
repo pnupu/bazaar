@@ -50,6 +50,11 @@ model User {
   Item                Item[]
 }
 
+enum ItemStatus {
+  SOLD
+  AVAILABLE
+  DISABLED
+}
 
 model Item {
   id            String         @id @default(cuid())
@@ -57,7 +62,7 @@ model Item {
   description   String
   price         Float
   imageUrl      String?
-  status        String
+  status        ItemStatus
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   longitude     Float?

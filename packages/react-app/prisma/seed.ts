@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { ItemStatus, PrismaClient } from '@prisma/client'
 import { ethers } from 'ethers'
 
 const prisma = new PrismaClient()
@@ -25,7 +25,7 @@ async function main() {
       title: 'iPhone 12 Pro',
       description: 'Barely used iPhone 12 Pro, great condition!',
       price: 699.99,
-      status: 'AVAILABLE',
+      status: 'AVAILABLE' as ItemStatus,
       sellerId: users[0].id,
       longitude: -122.4194,
       latitude: 37.7749,
@@ -35,7 +35,7 @@ async function main() {
       title: 'Vintage Leather Jacket',
       description: 'Cool vintage leather jacket, size M',
       price: 89.99,
-      status: 'AVAILABLE',
+      status: 'AVAILABLE' as ItemStatus,
       sellerId: users[1].id,
       longitude: -74.0060,
       latitude: 40.7128,
@@ -45,7 +45,7 @@ async function main() {
       title: 'The Great Gatsby',
       description: 'Classic novel by F. Scott Fitzgerald, paperback',
       price: 9.99,
-      status: 'AVAILABLE',
+      status: 'AVAILABLE' as ItemStatus,
       sellerId: users[2].id,
       longitude: -87.6298,
       latitude: 41.8781,
@@ -55,7 +55,7 @@ async function main() {
       title: 'Garden Tools Set',
       description: 'Complete set of garden tools, perfect for beginners',
       price: 49.99,
-      status: 'AVAILABLE',
+      status: 'AVAILABLE' as ItemStatus,
       sellerId: users[3].id,
       longitude: -118.2437,
       latitude: 34.0522,
@@ -65,7 +65,7 @@ async function main() {
       title: 'Mountain Bike',
       description: 'High-quality mountain bike, barely used',
       price: 299.99,
-      status: 'AVAILABLE',
+      status: 'AVAILABLE' as ItemStatus,
       sellerId: users[4].id,
       longitude: -71.0589,
       latitude: 42.3601,

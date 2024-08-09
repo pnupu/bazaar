@@ -25,7 +25,7 @@ export default function CreateItemPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [location, setLocation] = useState('');
   const [locationError, setLocationError] = useState<string | null>(null);
-  const [locationName, setLocationName] = useState('')
+  const [locationName, setLocationName] = useState<string | undefined>(undefined)
 
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [coordinates, setCoordinates] = useState<[number, number]>([0, 0]);
@@ -152,7 +152,7 @@ export default function CreateItemPage() {
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             required
-            step="0.01"
+            step="0.001"
             min="0"
             className="w-full p-2 border rounded"
           />
@@ -202,12 +202,14 @@ export default function CreateItemPage() {
           className="mt-4"
         />
       </form>
-      <Map
+      {locationName &&
+        <Map
         isOpen={isMapModalOpen}
         onClose={() => setIsMapModalOpen(false)}
         locationName={locationName}
         coordinates={coordinates}
-      />
+        />
+      }
     </div>
   );
 }
