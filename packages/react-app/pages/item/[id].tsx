@@ -41,6 +41,7 @@ export default function ItemDetailPage() {
             title="View Address"
             onClick={() => setIsOpen(true)}
             widthFull
+            className='bg-gradient-to-r from-[#fcb603] to-[#f98307]'
           />
         </div>
 
@@ -49,6 +50,7 @@ export default function ItemDetailPage() {
             title="Buy Now"
             onClick={() => console.log('Buy button clicked')}
             widthFull
+            className='bg-gradient-to-r from-[#fcb603] to-[#f98307]'
           />
         </div>
         <div className="mt-4">
@@ -56,6 +58,7 @@ export default function ItemDetailPage() {
             title="Contact Seller"
             onClick={() => console.log('Contact seller clicked')}
             widthFull
+            className='bg-gradient-to-r from-[#fcb603] to-[#f98307]'
           />
         </div>
       </div>
