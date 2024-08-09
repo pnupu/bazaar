@@ -1,15 +1,20 @@
 // pages/item/[id].tsx
 
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useItem } from '@/utils/api';
 import PrimaryButton from '@/components/Button';
+import Map from '@/components/Map';
 import Image from 'next/image';
+import 'leaflet/dist/leaflet.css';
+import { LatLngExpression } from 'leaflet';
 
 export default function ItemDetailPage() {
   const router = useRouter();
   const { id } = router.query;
   const { data: item, isLoading, error } = useItem(id as string);
+  const [isOpen, setIsOpen] = useState(false);
+  const singaporeCenter: LatLngExpression = [1.3521, 103.8198];
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading item</div>;
@@ -29,6 +34,16 @@ export default function ItemDetailPage() {
         <p className="text-gray-600 mt-2">{item.category.name}</p>
         <p className="text-xl font-semibold mt-2">${item.price.toFixed(2)}</p>
         <p className="mt-4">{item.description}</p>
+
+        {/* Tää ois se address button */}
+        <div className="mt-4">
+          <PrimaryButton
+            title="View Address"
+            onClick={() => setIsOpen(true)}
+            widthFull
+          />
+        </div>
+
         <div className="mt-6">
           <PrimaryButton
             title="Buy Now"
@@ -44,6 +59,12 @@ export default function ItemDetailPage() {
           />
         </div>
       </div>
+      <Map 
+        isOpen={isOpen} 
+        onClose={() => setIsOpen(!isOpen)} 
+        locationName={'Singapore'} 
+        coordinates={singaporeCenter} />
     </div>
   );
 }
+
