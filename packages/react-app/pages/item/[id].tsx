@@ -267,55 +267,6 @@ export default function ItemDetailPage() {
   return (
     <div className="flex flex-col items-center p-4">
       <div className="w-full max-w-md">
-        <Image
-          src={item.imageUrl || `https://via.placeholder.com/400x300.png?text=${encodeURIComponent(item.title)}`}
-          alt={item.title}
-          width={400}
-          height={300}
-          className="w-full h-auto rounded-lg shadow-md"
-        />
-        <h1 className="text-2xl font-bold mt-4">{item.title}</h1>
-        <p className="text-xl font-semibold mt-2">${item.price.toFixed(2)}</p>
-        <p className="mt-4">{item.description}</p>
-
-        {/* Tää ois se address button */}
-        <div className="mt-4">
-          <PrimaryButton
-            title="View Address"
-            onClick={() => setIsOpen(true)}
-            widthFull
-            className='bg-gradient-to-r from-[#fcb603] to-[#f98307]'
-          />
-        </div>
-
-        <div className="mt-6">
-          <PrimaryButton
-            title="Buy Now"
-            onClick={() => console.log('Buy button clicked')}
-            widthFull
-            className='bg-gradient-to-r from-[#fcb603] to-[#f98307]'
-          />
-        </div>
-        <div className="mt-4">
-          <PrimaryButton
-            title="Contact Seller"
-            onClick={startChat}
-            widthFull
-            className='bg-gradient-to-r from-[#fcb603] to-[#f98307]'
-          />
-        </div>
-      <div className="mb-4 p-4 bg-gray-100 rounded-lg">
-        <h2 className="text-xl font-bold mb-2">Seller Information</h2>
-        <p>Seller: {sellerUsername}</p>
-        {sellerFeedbackQuery.data?.length ? (
-          <>
-          <p>Average Rating: {sellerAverageRating.toFixed(1)} / 5</p>  
-          <p>Total Ratings: {sellerFeedbackQuery.data?.length || 0}</p>
-          </>
-        ): (
-          <p>The seller is new and doesn't have ratings</p>
-        )}
-      </div>
         {isEditing ? (
           <div>
             <Image
@@ -401,6 +352,7 @@ export default function ItemDetailPage() {
               title="View Address"
               onClick={() => setIsOpen(true)}
               widthFull
+              className='bg-gradient-to-r from-[#fcb603] to-[#f98307]'
             />
           </div>
         )}
@@ -411,6 +363,7 @@ export default function ItemDetailPage() {
               title="Edit Item"
               onClick={handleEdit}
               widthFull
+              className='bg-gradient-to-r from-[#fcb603] to-[#f98307]'
             />
           </div>
         )}
@@ -419,12 +372,12 @@ export default function ItemDetailPage() {
             <PrimaryButton
               title="Save"
               onClick={handleSave}
-              className="w-1/2 mr-2"
+              className="w-1/2 mr-2 bg-green-600"
             />
             <PrimaryButton
               title="Cancel"
               onClick={handleCancel}
-              className="w-1/2 ml-2"
+              className="w-1/2 ml-2 bg-red"
             />
           </div>
         )}
@@ -446,6 +399,7 @@ export default function ItemDetailPage() {
                 title="Contact Seller"
                 onClick={startChat}
                 widthFull
+                className='bg-gradient-to-r from-[#fcb603] to-[#f98307]'
               />
             </div>
           </>

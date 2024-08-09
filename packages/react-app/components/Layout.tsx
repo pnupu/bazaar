@@ -9,7 +9,7 @@ const Layout: FC<Props> = ({ children }) => {
   return (
     <>
       <div className="bg-[#eeeeee] bg-gypsum overflow-hidden flex flex-col min-h-screen">
-        <div className="fixed top-0 left-0 right-0 z-50 sm:static sm:z-auto pb-16">
+        <div className="fixed top-0 left-0 right-0 z-50 sm:static sm:z-auto">
           <Header />
         </div>
         <div className="pt-14 sm:pt-0">
