@@ -105,7 +105,7 @@ export default function Header() {
             <Link href="/settings">
               <button className="rounded-full bg-[#8B4513] p-1 text-white hover:bg-[#A0522D] focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#fcb603] transition-colors">
                 <span className="sr-only">User settings</span>
-                <Image
+                <img
                   className="h-8 w-8 rounded-full object-cover"
                   src={avatarUrl}
                   alt="User"

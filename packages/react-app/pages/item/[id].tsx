@@ -267,6 +267,27 @@ export default function ItemDetailPage() {
   return (
     <div className="flex flex-col items-center p-4">
       <div className="w-full max-w-md">
+      <div className="mb-4 p-4 bg-gray-100 rounded-lg">
+          <h2 className="text-xl font-bold mb-2">Seller Information</h2>
+          <div className="flex items-center mb-2">
+            <img
+              src={item.seller.avatarUrl || '/default-avatar.png'}
+              alt={`${sellerUsername}'s avatar`}
+              width={50}
+              height={50}
+              className="rounded-full mr-3"
+            />
+            <p className="font-semibold">{sellerUsername}</p>
+          </div>
+          {sellerFeedbackQuery.data?.length ? (
+            <>
+              <p>Average Rating: {sellerAverageRating.toFixed(1)} / 5</p>  
+              <p>Total Ratings: {sellerFeedbackQuery.data?.length || 0}</p>
+            </>
+          ) : (
+            <p>The seller is new and doesn't have ratings</p>
+          )}
+        </div>
         {isEditing ? (
           <div>
             <Image
