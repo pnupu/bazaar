@@ -4,6 +4,13 @@ import { useCategories, useCreateItem } from '@/utils/api';
 import PrimaryButton from '@/components/Button';
 import { useWeb3 } from "@/contexts/useWeb3";
 import { uploadImage } from '@/utils/imageUpload';
+import { LatLngExpression } from 'leaflet';
+
+interface LocationData {
+  city: string;
+  country: string;
+  position: LatLngExpression;
+}
 
 export default function CreateItemPage() {
   const router = useRouter();
@@ -17,6 +24,11 @@ export default function CreateItemPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [location, setLocation] = useState('');
+  const [city, setCity] = useState('');
+  const [country, setCountry] = useState('');
+  const [position, setPosition] = useState<LatLngExpression | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   const {
     address,
@@ -34,6 +46,22 @@ export default function CreateItemPage() {
     }
   };
 
+  const fetchLocationData = async (locationInput: string): Promise<LocationData> => {
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationInput)}`);
+    const data = await response.json();
+
+    if (!data || data.length === 0) {
+      throw new Error('Location not found. Please check your input and try again.');
+    }
+
+    const { lat, lon, display_name } = data[0];
+    const [city, country] = display_name.split(', ').reverse();
+    const position: LatLngExpression = [parseFloat(lat), parseFloat(lon)];
+
+    return { city, country, position };
+  };
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if(!address) {
@@ -44,6 +72,9 @@ export default function CreateItemPage() {
     setIsUploading(true);
 
     try {
+
+      const locationData = await fetchLocationData(location);
+
       let imageUrl = '';
       if (imageFile) {
         imageUrl = await uploadImage(imageFile);
@@ -56,6 +87,10 @@ export default function CreateItemPage() {
         categoryId,
         imageUrl,
         address,
+        /* location: {
+              latitude: locationData.position[0],
+              longitude: locationData.position[1],
+         }, */
       });
       router.push('/');
     } catch (error) {
@@ -132,6 +167,19 @@ export default function CreateItemPage() {
             className="w-full p-2 border rounded"
           />
         </div>
+        <div className="mb-4">
+          <label htmlFor="location" className="block mb-2">Location</label>
+          <div className="flex">
+            <input
+              type="text"
+              id="location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Enter city and country (e.g., London, UK)"
+              className="flex-grow p-2 border rounded"
+            />
+          </div>
+        </div>
         {imagePreview && (
           <div className="mb-4">
             <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover rounded" />
@@ -142,7 +190,7 @@ export default function CreateItemPage() {
           onClick={() => handleSubmit}
           widthFull
           loading={createItem.isLoading || isUploading}
-          disabled={createItem.isLoading || isUploading || !title || !description || !price || !categoryId}
+          disabled={createItem.isLoading || isUploading || !title || !description || !price || !categoryId } //|| !location}
           className="mt-4"
         />
       </form>
