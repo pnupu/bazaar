@@ -373,6 +373,7 @@ export default function ItemDetailPage() {
               title="View Address"
               onClick={() => setIsOpen(true)}
               widthFull
+              className='bg-gradient-to-r from-[#fcb603] to-[#f98307]'
             />
           </div>
         )}
@@ -383,6 +384,7 @@ export default function ItemDetailPage() {
               title="Edit Item"
               onClick={handleEdit}
               widthFull
+              className='bg-gradient-to-r from-[#fcb603] to-[#f98307]'
             />
           </div>
         )}
@@ -391,12 +393,12 @@ export default function ItemDetailPage() {
             <PrimaryButton
               title="Save"
               onClick={handleSave}
-              className="w-1/2 mr-2"
+              className="w-1/2 mr-2 bg-green-600"
             />
             <PrimaryButton
               title="Cancel"
               onClick={handleCancel}
-              className="w-1/2 ml-2"
+              className="w-1/2 ml-2 bg-red"
             />
           </div>
         )}
@@ -409,6 +411,7 @@ export default function ItemDetailPage() {
                   onClick={handleBuyNow}
                   widthFull
                   disabled={isSending}
+                  className='bg-gradient-to-r from-[#fcb603] to-[#f98307]'
                 />
               </div>
             )}
@@ -417,6 +420,7 @@ export default function ItemDetailPage() {
                 title="Contact Seller"
                 onClick={startChat}
                 widthFull
+                className='bg-gradient-to-r from-[#fcb603] to-[#f98307]'
               />
             </div>
           </>

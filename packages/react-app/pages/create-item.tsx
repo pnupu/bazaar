@@ -199,7 +199,7 @@ export default function CreateItemPage() {
           widthFull
           loading={createItem.isLoading || isUploading}
           disabled={createItem.isLoading || isUploading || !title || !description || !price  } //|| !location}
-          className="mt-4"
+          className="mt-4 bg-gradient-to-r from-[#fcb603] to-[#f98307]"
         />
       </form>
       {locationName &&

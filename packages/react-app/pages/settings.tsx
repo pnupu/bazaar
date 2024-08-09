@@ -76,11 +76,11 @@ export default function SettingsPage() {
   if (userQuery.isError) return <div>Error loading user data</div>;
 
   return (
-    <div className="flex flex-col items-center p-4">
+    <div className="flex flex-col items-center p-6">
       <div className="w-full max-w-md">
-        <div className="flex items-center justify-between mb-4 gap-4">
-          <BackButton />
-          <h1 className="text-2xl font-bold">User Settings</h1>
+      <BackButton />
+        <div className="flex items-center justify-between mb-4 pt-2 gap-4">
+          <h1 className="text-2xl font-bold flex text-center">User Settings</h1>
           <div className="w-8"></div> 
         </div>
       </div>
@@ -131,7 +131,7 @@ export default function SettingsPage() {
           widthFull
           loading={updateUserMutation.isLoading || isUploading}
           disabled={updateUserMutation.isLoading || isUploading}
-          className="mt-4"
+          className="mt-4 bg-gradient-to-r from-[#fcb603] to-[#f98307]"
         />
       </form>
     </div>
