@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import { useItem, useUpdateItem, useUpdateItemStatus } from '@/utils/api';
 import PrimaryButton from '@/components/Button';
-import Map from '@/components/Map';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import 'leaflet/dist/leaflet.css';
 import { trpc } from '@/utils/trpc';
@@ -15,6 +15,10 @@ import {
 import axios from 'axios';
 import { ShieldCheckIcon } from '@heroicons/react/24/outline';
 
+const Map = dynamic(() => import('@/components/Map'), {
+  ssr: false,
+  loading: () => <p>Loading map...</p>
+});
 interface LocationData {
   city: string;
   country: string;

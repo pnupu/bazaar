@@ -73,14 +73,16 @@ const ChatPage = () => {
   }, []);
 
   useEffect(() => {
-    if (conversation) {
+    if (conversation && pusherClient) {
       const channel = pusherClient.subscribe(`private-conversation-${conversation.id}`);
       channel.bind('new-message', () => {
         refetch();
       });
-
+  
       return () => {
-        pusherClient.unsubscribe(`private-conversation-${conversation.id}`);
+        if (pusherClient) {
+          pusherClient.unsubscribe(`private-conversation-${conversation.id}`);
+        }
       };
     }
   }, [conversation, refetch]);

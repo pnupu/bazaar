@@ -2,9 +2,12 @@ import { Fragment } from 'react';
 import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 import { LatLngExpression } from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import { MapResizer } from '@/utils/mapResizer';
+import dynamic from 'next/dynamic';
 
+const MapWithNoSSR = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), {
+  ssr: false,
+});
 interface LocationModalProps {
     isOpen: boolean;
     onClose: () => void;

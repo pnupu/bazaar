@@ -29,10 +29,14 @@ export const trpc = createTRPCNext<AppRouter>({
         httpBatchLink({
           url,
           headers() {
-            return {
-              'x-user-address': localStorage.getItem('userAddress') || '',
-            };
+            if (typeof window !== 'undefined') {
+              return {
+                'x-user-address': localStorage.getItem('userAddress') || '',
+              };
+            }
+            return {};
           },
+
         }),
       ],
     };

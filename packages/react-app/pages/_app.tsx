@@ -11,6 +11,7 @@ import Layout from "../components/Layout";
 import { trpc } from '../utils/trpc';
 import { AuthProvider } from '../contexts/AuthContext';
 import "../styles/globals.css";
+import dynamic from 'next/dynamic';
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -37,6 +38,8 @@ const config = createConfig({
 });
 
 const queryClient = new QueryClient();
+
+const LeafletCSS = dynamic(() => import('../components/LeafletCSS'), { ssr: false });
 
 
 function App({ Component, pageProps }: AppProps) {
