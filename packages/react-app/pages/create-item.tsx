@@ -5,13 +5,19 @@ import PrimaryButton from '@/components/Button';
 import { useWeb3 } from "@/contexts/useWeb3";
 import { uploadImage } from '@/utils/imageUpload';
 import { LatLngExpression } from 'leaflet';
-import Map from '@/components/Map'
 
 interface LocationData {
   city: string;
   country: string;
   position: LatLngExpression;
 }
+
+import dynamic from 'next/dynamic';
+
+const Map = dynamic(() => import('@/components/Map'), {
+  ssr: false,
+  loading: () => <p>Loading map...</p>
+});
 
 export default function CreateItemPage() {
   const router = useRouter();

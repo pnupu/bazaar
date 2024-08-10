@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import { useItem, useUpdateItem, useUpdateItemStatus } from '@/utils/api';
 import PrimaryButton from '@/components/Button';
-import Map from '@/components/Map';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import 'leaflet/dist/leaflet.css';
 import { trpc } from '@/utils/trpc';
@@ -14,7 +14,12 @@ import {
 } from "viem";
 import axios from 'axios';
 import ItemPrice from '@/components/ItemPrice';
+import { ShieldCheckIcon } from '@heroicons/react/24/outline';
 
+const Map = dynamic(() => import('@/components/Map'), {
+  ssr: false,
+  loading: () => <p>Loading map...</p>
+});
 interface LocationData {
   city: string;
   country: string;
@@ -39,7 +44,7 @@ export default function ItemDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedItem, setEditedItem] = useState(item);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const { address, getUserAddress, sendCUSD, signTransaction, } = useWeb3();
+  const { address, getUserAddress, sendCUSD, signTransaction, mintMinipayNFT } = useWeb3();
 
   const [rating, setRating] = useState('');
   const [comment, setComment] = useState('');
@@ -122,28 +127,56 @@ export default function ItemDetailPage() {
 
 
   const handleSubmitFeedback = async () => {
-    if (!item || !userQuery.data) return;
+    if (!item || !address) return;
 
-    setIsSubmittingFeedback(true);
     try {
-      const message = JSON.stringify({ itemId: item.id, rating, comment });
-      const signature = await signTransaction(stringToHex(message));
-
-      await addFeedbackMutation.mutateAsync({
+      // Prepare feedback data
+      const feedbackData = {
         itemId: item.id,
         rating: Number(rating),
         comment,
+        sellerId: item.seller.id,
+        timestamp: new Date().toISOString(),
+      };
+
+      // Sign the feedback data
+      const messageToSign = JSON.stringify(feedbackData);
+      const signature = await signTransaction(messageToSign);
+
+      if (!signature) {
+        throw new Error('Failed to sign the message');
+      }
+
+      // Prepare NFT metadata including the signature
+      const nftMetadata = {
+        ...feedbackData,
         signature,
-        sellerId: item.sellerId
+      };
+
+      // Mint NFT with signed feedback data
+      const nftMessage = JSON.stringify(nftMetadata);
+      const nftReceipt = await mintMinipayNFT(nftMessage);
+
+      if (!nftReceipt) {
+        throw new Error('Failed to mint NFT');
+      }
+      const tokenId = nftReceipt.logs[0]?.topics[3];
+      if (!tokenId) {
+        throw new Error('Failed to extract token ID from NFT receipt');
+      }
+      // Submit feedback with NFT information
+      await addFeedbackMutation.mutateAsync({
+        ...feedbackData,
+        signature,
+        nftTokenId: tokenId,
+        nftTransactionHash: nftReceipt.transactionHash,
       });
 
       alert('Feedback submitted successfully!');
-      getFeedbackQuery.refetch();
+      router.push('/'); // Redirect to home page or wherever appropriate
     } catch (error) {
       console.error('Error submitting feedback:', error);
       alert('Failed to submit feedback. Please try again.');
-    } finally {
-      setIsSubmittingFeedback(false);
     }
   };
   const startChat = async () => {
@@ -269,8 +302,7 @@ export default function ItemDetailPage() {
     <div className="flex flex-col items-center p-4">
       <div className="w-full max-w-md">
       <div className="mb-4 p-4 bg-gray-100 rounded-lg">
-          <h2 className="text-xl font-bold mb-2">Seller Information</h2>
-          <div className="flex items-center mb-2">
+      <div className="flex items-center mb-2">
             <img
               src={item.seller.avatarUrl || '/default-avatar.png'}
               alt={`${sellerUsername}'s avatar`}
@@ -278,7 +310,17 @@ export default function ItemDetailPage() {
               height={50}
               className="rounded-full mr-3"
             />
-            <p className="font-semibold">{sellerUsername}</p>
+            <div>
+              <div className="flex items-center">
+                <p className="font-semibold">{sellerUsername}</p>
+                {item.seller.worldcoinProof && (
+                  <ShieldCheckIcon className="h-5 w-5 text-green-500 ml-1" title="Worldcoin Verified" />
+                )}
+              </div>
+              {item.seller.worldcoinProof && (
+                <p className="text-sm text-gray-600">Worldcoin Verified ({item.seller.worldcoinProof.verificationLevel})</p>
+              )}
+            </div>
           </div>
           {sellerFeedbackQuery.data?.length ? (
             <>

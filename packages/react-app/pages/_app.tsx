@@ -12,6 +12,7 @@ import { trpc } from '../utils/trpc';
 import { AuthProvider } from '../contexts/AuthContext';
 import "../styles/globals.css";
 import { CurrencyProvider } from '../contexts/CurrencyContext';
+import dynamic from 'next/dynamic';
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -40,6 +41,8 @@ const config = createConfig({
 
 const queryClient = new QueryClient();
 
+const LeafletCSS = dynamic(() => import('../components/LeafletCSS'), { ssr: false });
+
 
 function App({ Component, pageProps }: AppProps) {
   return (
@@ -49,6 +52,7 @@ function App({ Component, pageProps }: AppProps) {
           <AuthProvider>
             <CurrencyProvider>
               <Layout>
+                <LeafletCSS />
                 <Component {...pageProps} />
               </Layout>
             </CurrencyProvider>

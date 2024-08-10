@@ -20,7 +20,6 @@ const publicClient = createPublicClient({
 
 const cUSDTokenAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1"; // Testnet
 const MINIPAY_NFT_CONTRACT = "0xE8F4699baba6C86DA9729b1B0a1DA1Bd4136eFeF"; // Testnet
-
 export const useWeb3 = () => {
   const [address, setAddress] = useState<string | null>(null);
 
@@ -61,7 +60,7 @@ export const useWeb3 = () => {
     return receipt;
   };
 
-  const mintMinipayNFT = async () => {
+  const mintMinipayNFT = async (message: string) => {
     const walletClient = createWalletClient({
       transport: custom(window.ethereum),
       chain: celoAlfajores,
@@ -76,7 +75,7 @@ export const useWeb3 = () => {
       account: address,
       args: [
         address,
-        "https://cdn-production-opera-website.operacdn.com/staticfiles/assets/images/sections/2023/hero-top/products/minipay/minipay__desktop@2x.a17626ddb042.webp",
+        message
       ],
     });
 
@@ -124,9 +123,6 @@ export const useWeb3 = () => {
 
     const [address] = await walletClient.getAddresses();
 
-    const hex = stringToHex("{user: xxx; rating: 4; comment: 'asd'}")
-    console.log("hex", hex)
-    console.log("string", hexToString(hex))
     const res = await walletClient.signMessage({
       account: address,
       message: message,

@@ -41,13 +41,39 @@ export const chatRouter = router({
       const conversation = await prisma.conversation.findUnique({
         where: { id: input.conversationId },
         include: {
-          seller: true,
-          buyer: true,
+          seller: {
+            include: {
+              worldcoinProof: {
+                select: {
+                  verificationLevel: true,
+                },
+              },
+            },
+          },
+          buyer: {
+            include: {
+              worldcoinProof: {
+                select: {
+                  verificationLevel: true,
+                },
+              },
+            },
+          },
           item: true,
           offers: true,
           messages: {
             orderBy: { createdAt: 'asc' },
-            include: { sender: true },
+            include: { 
+              sender: {
+                include: {
+                  worldcoinProof: {
+                    select: {
+                      verificationLevel: true,
+                    },
+                  },
+                },
+              },
+            },
           },
         },
       });

@@ -8,7 +8,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("POSTGRES_PRISMA_URL")
 }
 
 model Offer {
@@ -43,6 +43,18 @@ model User {
   Item                Item[]
   feedbackGiven       Feedback[]     @relation("BuyerFeedback")
   feedbackReceived    Feedback[]     @relation("SellerFeedback")
+  worldcoinProof WorldcoinProof?
+}
+
+model WorldcoinProof {
+  id             String   @id @default(cuid())
+  nullifierHash  String   @unique
+  merkleRoot     String
+  proof          String
+  verificationLevel String
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id])
+  userId         String   @unique
 }
 
 enum ItemStatus {
@@ -64,6 +76,9 @@ model Feedback {
   buyerId   String
   seller    User     @relation("SellerFeedback", fields: [sellerId], references: [id])
   sellerId  String
+  nftTokenId         String
+  nftTransactionHash String
+  timestamp          String
 }
 
 model Item {
