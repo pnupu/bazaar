@@ -12,7 +12,7 @@ const Layout: FC<Props> = ({ children }) => {
         <div className="fixed top-0 left-0 right-0 z-50 sm:static sm:z-auto">
           <Header />
         </div>
-        <div className="pt-14 sm:pt-0">
+        <div className="pt-14 sm:pt-0 pt-[65px]">
           <div className="max-w-7xl mx-auto space-y-8 sm:px-6 lg:px-8">
             {children}
           </div>
