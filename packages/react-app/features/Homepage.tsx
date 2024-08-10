@@ -11,6 +11,8 @@ import Link from 'next/link';
 import { Tab } from "@headlessui/react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Input } from '@headlessui/react'
+import ItemPrice from "@/components/ItemPrice";
+import Spinner from "@/components/Spinner";
 
 type Listing = {
     status: string;
@@ -53,7 +55,7 @@ export default function BazaarHomepage() {
   };
 
   if (itemsLoading) {
-    return <div>Loading...</div>;
+    return  <Spinner />;
   }
 
   return (
@@ -97,7 +99,7 @@ export default function BazaarHomepage() {
                     <div className="p-6">
                       <h3 className="text-xl font-semibold text-gray-900 mb-2">{item.title}</h3>
                       <div className="flex justify-between items-center">
-                        <p className="text-2xl font-bold text-gray-900">${item.price.toFixed(2)}</p>
+                        <p className="text-2xl font-bold text-gray-900"><ItemPrice priceCUSD={Number(item.price.toFixed(2))} /></p>
 
                       </div>
                     </div>
