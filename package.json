@@ -26,5 +26,8 @@
   "keywords": [
     "celo-composer",
     "celo"
-  ]
+  ],
+  "dependencies": {
+    "@vercel/postgres": "^0.9.0"
+  }
 }
