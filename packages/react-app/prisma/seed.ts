@@ -191,16 +191,16 @@ async function main() {
     }
   }
 
-  await prisma.feedback.create({
-    data: {
-      rating: 5,
-      comment: 'Excellent item and smooth transaction!',
-      signature: 'mockSignature123', // In a real scenario, this would be a valid signature
-      itemId: specialItem.id,
-      buyerId: buyer.id,
-      sellerId: seller.id,
-    },
-  })
+  // await prisma.feedback.create({
+  //   data: {
+  //     rating: 5,
+  //     comment: 'Excellent item and smooth transaction!',
+  //     signature: 'mockSignature123', // In a real scenario, this would be a valid signature
+  //     itemId: specialItem.id,
+  //     buyerId: buyer.id,
+  //     sellerId: seller.id,
+  //   },
+  // })
   
   console.log('Seed data inserted successfully.')
 }

@@ -62,7 +62,7 @@ export default function Home() {
   async function mintNFT() {
     setNFTLoading(true);
     try {
-      const tx = await mintMinipayNFT();
+      // const tx = await mintMinipayNFT();
       const tokenURIs = await getNFTs();
       setUserOwnedNFTs(tokenURIs);
       setTx(tx);

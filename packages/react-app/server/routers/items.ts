@@ -199,13 +199,16 @@ export const itemsRouter = router({
       itemId: z.string(),
       rating: z.number().min(1).max(5),
       comment: z.string(),
-      signature: z.string(),
       sellerId: z.string(),
+      signature: z.string(),
+      nftTokenId: z.string(),
+      nftTransactionHash: z.string(),
+      timestamp: z.string(),
     }))
     .mutation(async ({ input, ctx }) => {
-      const { itemId, rating, comment, signature } = input;
+      const { itemId, rating, comment, sellerId, signature, nftTokenId, nftTransactionHash, timestamp } = input;
 
-      const item = await ctx.prisma.item.findUnique({
+      const item = await prisma.item.findUnique({
         where: { id: itemId },
         include: { feedback: true },
       });
@@ -222,14 +225,17 @@ export const itemsRouter = router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Feedback has already been given for this item' });
       }
 
-      const feedback = await ctx.prisma.feedback.create({
+      const feedback = await prisma.feedback.create({
         data: {
           rating,
           comment,
-          signature,
           item: { connect: { id: itemId } },
           buyer: { connect: { id: ctx.user.id } },
-          seller: {connect: {id: input.sellerId}}
+          seller: { connect: { id: sellerId } },
+          signature,
+          nftTokenId,
+          nftTransactionHash,
+          timestamp,
         },
       });
 

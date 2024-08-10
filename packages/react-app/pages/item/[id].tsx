@@ -39,7 +39,7 @@ export default function ItemDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedItem, setEditedItem] = useState(item);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const { address, getUserAddress, sendCUSD, signTransaction, } = useWeb3();
+  const { address, getUserAddress, sendCUSD, signTransaction, mintMinipayNFT } = useWeb3();
 
   const [rating, setRating] = useState('');
   const [comment, setComment] = useState('');
@@ -122,28 +122,56 @@ export default function ItemDetailPage() {
 
 
   const handleSubmitFeedback = async () => {
-    if (!item || !userQuery.data) return;
+    if (!item || !address) return;
 
-    setIsSubmittingFeedback(true);
     try {
-      const message = JSON.stringify({ itemId: item.id, rating, comment });
-      const signature = await signTransaction(stringToHex(message));
-
-      await addFeedbackMutation.mutateAsync({
+      // Prepare feedback data
+      const feedbackData = {
         itemId: item.id,
         rating: Number(rating),
         comment,
+        sellerId: item.seller.id,
+        timestamp: new Date().toISOString(),
+      };
+
+      // Sign the feedback data
+      const messageToSign = JSON.stringify(feedbackData);
+      const signature = await signTransaction(messageToSign);
+
+      if (!signature) {
+        throw new Error('Failed to sign the message');
+      }
+
+      // Prepare NFT metadata including the signature
+      const nftMetadata = {
+        ...feedbackData,
         signature,
-        sellerId: item.sellerId
+      };
+
+      // Mint NFT with signed feedback data
+      const nftMessage = JSON.stringify(nftMetadata);
+      const nftReceipt = await mintMinipayNFT(nftMessage);
+
+      if (!nftReceipt) {
+        throw new Error('Failed to mint NFT');
+      }
+      const tokenId = nftReceipt.logs[0]?.topics[3];
+      if (!tokenId) {
+        throw new Error('Failed to extract token ID from NFT receipt');
+      }
+      // Submit feedback with NFT information
+      await addFeedbackMutation.mutateAsync({
+        ...feedbackData,
+        signature,
+        nftTokenId: tokenId,
+        nftTransactionHash: nftReceipt.transactionHash,
       });
 
       alert('Feedback submitted successfully!');
-      getFeedbackQuery.refetch();
+      router.push('/'); // Redirect to home page or wherever appropriate
     } catch (error) {
       console.error('Error submitting feedback:', error);
       alert('Failed to submit feedback. Please try again.');
-    } finally {
-      setIsSubmittingFeedback(false);
     }
   };
   const startChat = async () => {

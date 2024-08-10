@@ -76,6 +76,9 @@ model Feedback {
   buyerId   String
   seller    User     @relation("SellerFeedback", fields: [sellerId], references: [id])
   sellerId  String
+  nftTokenId         String
+  nftTransactionHash String
+  timestamp          String
 }
 
 model Item {

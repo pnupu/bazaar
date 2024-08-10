@@ -130,13 +130,32 @@ const ChatPage = () => {
       {/* Chat area - scrollable */}
       <div className="flex-1 overflow-y-auto pb-40 pt-4" ref={messagesEndRef}>
         {conversation.offers.map(offer => (
-          <div key={offer.id} className="mb-4 p-3 bg-amber-300 rounded shadow w-[70%] rounded-2xl text-center mx-auto">
-            <p className="font-semibold">You made an offer: ${offer.amount}</p>
-            {offer.status === 'PENDING' && offer.sellerId === userQuery.data?.id && (
-              <button className="mt-2 text-blue-500 underline">Accept Offer</button>
-            )}
-            {offer.status === 'ACCEPTED' && <p className="text-green-600 mt-1">Offer accepted!</p>}
-          </div>
+           <div key={offer.id} className="mb-4 p-3 bg-amber-300 shadow w-[70%] rounded-2xl text-center mx-auto">
+           {offer.buyerId === userQuery.data?.id ? (
+             <p className="font-semibold">You made an offer: ${offer.amount}</p>
+           ) : (
+             <p className="font-semibold">Buyer made an offer: ${offer.amount}</p>
+           )}
+           
+           {offer.status === 'PENDING' && (
+             <>
+               {offer.sellerId === userQuery.data?.id ? (
+                 <button 
+                   onClick={() => handleAcceptOffer(offer.id)}
+                   className="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                 >
+                   Accept Offer
+                 </button>
+               ) : (
+                 <p className="text-gray-600 mt-1">Waiting for seller to accept</p>
+               )}
+             </>
+           )}
+           
+           {offer.status === 'ACCEPTED' && (
+             <p className="text-green-600 mt-1 font-semibold">Offer accepted!</p>
+           )}
+         </div>
         ))}
         {conversation.messages.map(msg => (
           <div key={msg.id} className={`mb-4 ${msg.senderId === userQuery.data?.id ? 'flex justify-end' : 'flex justify-start'}`}>
