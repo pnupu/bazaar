@@ -6,11 +6,12 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { injectedWallet } from "@rainbow-me/rainbowkit/wallets";
 import type { AppProps } from "next/app";
 import { WagmiProvider, createConfig, http } from "wagmi";
-import { celo, celoAlfajores } from "wagmi/chains";
+import { celo, celoAlfajores, base } from "wagmi/chains";
 import Layout from "../components/Layout";
 import { trpc } from '../utils/trpc';
 import { AuthProvider } from '../contexts/AuthContext';
 import "../styles/globals.css";
+import { CurrencyProvider } from '../contexts/CurrencyContext';
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -29,10 +30,11 @@ const connectors = connectorsForWallets(
 
 const config = createConfig({
   connectors,
-  chains: [celo, celoAlfajores],
+  chains: [celo, celoAlfajores, base],
   transports: {
     [celo.id]: http(),
     [celoAlfajores.id]: http(),
+    [base.id]: http(),
   },
 });
 
@@ -45,9 +47,11 @@ function App({ Component, pageProps }: AppProps) {
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
           <AuthProvider>
-            <Layout>
-              <Component {...pageProps} />
-            </Layout>
+            <CurrencyProvider>
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
+            </CurrencyProvider>
           </AuthProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
