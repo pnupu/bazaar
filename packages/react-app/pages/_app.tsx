@@ -49,6 +49,7 @@ function App({ Component, pageProps }: AppProps) {
         <RainbowKitProvider>
           <AuthProvider>
             <Layout>
+              <LeafletCSS />
               <Component {...pageProps} />
             </Layout>
           </AuthProvider>

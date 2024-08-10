@@ -25,11 +25,16 @@ export default function Header() {
   });
 
   useEffect(() => {
-    getUserAddress();
-    if (window.ethereum?.isMiniPay) {
-      setHideConnectBtn(true);
-      connect({ connector: injected({ target: "metaMask" }) });
-    }
+    const connectWallet = async () => {
+      try {
+        if (window.ethereum?.isMiniPay) {
+          await connect({ connector: injected({ target: "metaMask" }) });
+        }
+      } catch (err) {
+        console.error("Failed to connect wallet:", err);
+      }
+    };
+    connectWallet();
   }, []);
 
   useEffect(() => {
