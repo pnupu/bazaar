@@ -24,7 +24,7 @@ const ItemPrice: React.FC<ItemPriceProps> = ({ priceCUSD }) => {
   }
 
   return (
-    <span>{currency === 'USD' ? 'USD ' : '€'}{displayPrice.toFixed(2)}</span>
+    <span>{currency === 'USD' ? '$' : '€'}{displayPrice.toFixed(2)}</span>
   );
 };
 

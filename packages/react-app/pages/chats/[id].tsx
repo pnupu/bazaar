@@ -6,6 +6,7 @@ import PrimaryButton from '@/components/Button';
 import pusherClient from '../../utils/pusher';
 import Link from 'next/link';
 import ChatHeader from '@/components/ChatHeader';
+import ItemPrice from '@/components/ItemPrice';
 
 
 interface OfferModalProps {
@@ -180,7 +181,7 @@ const ChatPage = () => {
           >
             Make Offer
           </button>
-          <span>Current Price: ${conversation.item.price}</span>
+          <span>Current Price: ${<ItemPrice priceCUSD={Number(conversation.item.price.toFixed(2))} />}</span>
         </div>
       </div>
 

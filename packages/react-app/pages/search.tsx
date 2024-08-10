@@ -5,6 +5,7 @@ import { useSearchItems } from "@/utils/api";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import BackButton from '@/components/BackButton';
+import ItemPrice from "@/components/ItemPrice";
 
 type Listing = {
   id: string;
@@ -78,7 +79,7 @@ export default function SearchPage() {
                 </div>
                 <div className="p-4">
                   <h3 className="text-lg font-semibold text-gray-800">{item.title}</h3>
-                  <p className="text-sm text-gray-800 mt-2">Price: ${item.price.toFixed(2)}</p>
+                  <p className="text-sm text-gray-800 mt-2">Price: ${<ItemPrice priceCUSD={Number(item.price.toFixed(2))} />}</p>
                 </div>
               </div>
             </Link>

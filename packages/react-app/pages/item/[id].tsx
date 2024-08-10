@@ -13,6 +13,7 @@ import {
   stringToHex,
 } from "viem";
 import axios from 'axios';
+import ItemPrice from '@/components/ItemPrice';
 
 interface LocationData {
   city: string;
@@ -331,7 +332,7 @@ export default function ItemDetailPage() {
             className="text-xl font-semibold mt-2 w-full p-2 border rounded"
           />
         ) : (
-          <p className="text-xl font-semibold mt-2">${item.price.toFixed(2)}</p>
+          <p className="text-xl font-semibold mt-2">${<ItemPrice priceCUSD={Number(item.price.toFixed(2))} />}</p>
         )}
         {isEditing ? (
           <textarea
