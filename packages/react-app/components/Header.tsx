@@ -3,22 +3,25 @@ import { Bars3Icon, MagnifyingGlassIcon, WalletIcon, XMarkIcon, ChatBubbleOvalLe
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import { Fragment, useEffect, useState } from "react";
-import { useConnect } from "wagmi";
+import { useConnect, useAccount } from "wagmi";
 import { injected } from "wagmi/connectors";
 import Link from 'next/link';
 import { useWeb3 } from "@/contexts/useWeb3";
 import { trpc } from '../utils/trpc';
 import { useRouter } from "next/router";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Header() {
-  const [hideConnectBtn, setHideConnectBtn] = useState(false);
+  const [hideConnectBtn, setHideConnectBtn] = useState(true);
   const { connect } = useConnect();
   const { address, getUserAddress } = useWeb3();
+  const { isConnected } = useAccount();
   const [avatarUrl, setAvatarUrl] = useState('/user-icon.png');
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const openModal = () => setIsModalOpen(!isModalOpen);
+  const { isAuthenticated } = useAuth();
 
   const userQuery = trpc.user.getUserWithAddress.useQuery({ address: address || '' }, {
     enabled: !!address,
@@ -35,7 +38,15 @@ export default function Header() {
       }
     };
     connectWallet();
-  }, []);
+  }, [connect]);
+
+  useEffect(() => {
+    getUserAddress();
+  }, [getUserAddress]);
+
+  useEffect(() => {
+    setHideConnectBtn(!isConnected);
+  }, [isConnected]);
 
   useEffect(() => {
     if (userQuery.data && userQuery.data.avatarUrl) {
@@ -59,7 +70,10 @@ export default function Header() {
               <h1 className="text-2xl font-bold text-[#8B4513]">Bazaar</h1>
             </Link>
           </div>
-          
+          {hideConnectBtn ? (
+            <ConnectButton/>
+          ) : (                
+            <div className="flex items-center space-x-2">
           <div className="flex items-center space-x-2">
             <Popover className="sm:hidden relative">
                 {({ open, close }) => (
@@ -208,6 +222,8 @@ export default function Header() {
         </Dialog>
       </Transition>
           </div>
+          </div>
+          )}
         </div>
       </div>
     </header>
