@@ -12,6 +12,7 @@ import { Tab } from "@headlessui/react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Input } from '@headlessui/react'
 import ItemPrice from "@/components/ItemPrice";
+import Spinner from "@/components/Spinner";
 
 type Listing = {
     status: string;
@@ -54,7 +55,7 @@ export default function BazaarHomepage() {
   };
 
   if (itemsLoading) {
-    return <div>Loading...</div>;
+    return  <Spinner />;
   }
 
   return (

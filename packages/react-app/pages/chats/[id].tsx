@@ -7,6 +7,7 @@ import pusherClient from '../../utils/pusher';
 import Link from 'next/link';
 import ChatHeader from '@/components/ChatHeader';
 import ItemPrice from '@/components/ItemPrice';
+import Spinner from '@/components/Spinner';
 
 
 interface OfferModalProps {
@@ -111,7 +112,7 @@ const ChatPage = () => {
   };
 
   if (isLoading || userQuery.isLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading conversation...</div>;
+    return <div className="flex justify-center items-center h-screen">{<Spinner />}</div>;
   }
 
   if (!conversation || !userQuery.data) {

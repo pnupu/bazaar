@@ -7,6 +7,7 @@ import BackButton from '@/components/BackButton';
 import { uploadImage } from '@/utils/imageUpload';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { IDKitWidget, VerificationLevel } from '@worldcoin/idkit';
+import Spinner from '@/components/Spinner';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -103,7 +104,7 @@ export default function SettingsPage() {
     fileInputRef.current?.click();
   };
 
-  if (userQuery.isLoading) return <div>Loading user data...</div>;
+  if (userQuery.isLoading) return <Spinner />;
   if (userQuery.isError) return <div>Error loading user data</div>;
 
   return (

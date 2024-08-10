@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import BackButton from '@/components/BackButton';
 import ItemPrice from "@/components/ItemPrice";
+import Spinner from "@/components/Spinner";
 
 type Listing = {
   id: string;
@@ -64,7 +65,7 @@ export default function SearchPage() {
       </form>
       
       {isLoading ? (
-        <div>Loading...</div>
+         <Spinner />
       ) : (
         <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {displayedItems.map((item) => (

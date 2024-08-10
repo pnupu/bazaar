@@ -1,3 +1,5 @@
+import Spinner from "./Spinner";
+
 type Props = {
   title: string;
   onClick: () => void;
@@ -36,7 +38,7 @@ function PrimaryButton({
         }
       `}
     >
-      {loading ? "Loading..." : title}
+      {loading ? <Spinner /> : title}
     </button>
   );
 }
