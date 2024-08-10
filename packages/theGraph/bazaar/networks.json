@@ -1,0 +1,8 @@
+{
+  "celo-alfajores": {
+    "MiniPay": {
+      "address": "0xE8F4699baba6C86DA9729b1B0a1DA1Bd4136eFeF",
+      "startBlock": 25576239
+    }
+  }
+}
