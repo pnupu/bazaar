@@ -13,6 +13,7 @@ import {
   stringToHex,
 } from "viem";
 import axios from 'axios';
+import { ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 interface LocationData {
   city: string;
@@ -268,8 +269,7 @@ export default function ItemDetailPage() {
     <div className="flex flex-col items-center p-4">
       <div className="w-full max-w-md">
       <div className="mb-4 p-4 bg-gray-100 rounded-lg">
-          <h2 className="text-xl font-bold mb-2">Seller Information</h2>
-          <div className="flex items-center mb-2">
+      <div className="flex items-center mb-2">
             <img
               src={item.seller.avatarUrl || '/default-avatar.png'}
               alt={`${sellerUsername}'s avatar`}
@@ -277,7 +277,17 @@ export default function ItemDetailPage() {
               height={50}
               className="rounded-full mr-3"
             />
-            <p className="font-semibold">{sellerUsername}</p>
+            <div>
+              <div className="flex items-center">
+                <p className="font-semibold">{sellerUsername}</p>
+                {item.seller.worldcoinProof && (
+                  <ShieldCheckIcon className="h-5 w-5 text-green-500 ml-1" title="Worldcoin Verified" />
+                )}
+              </div>
+              {item.seller.worldcoinProof && (
+                <p className="text-sm text-gray-600">Worldcoin Verified ({item.seller.worldcoinProof.verificationLevel})</p>
+              )}
+            </div>
           </div>
           {sellerFeedbackQuery.data?.length ? (
             <>

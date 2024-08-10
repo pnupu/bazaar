@@ -65,7 +65,7 @@ export default function BazaarHomepage() {
             placeholder=" Search items..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full border-2 border pr-10 pl-4 py-3 rounded-full bg-white text-gray-900 placeholder-gray-500"
+            className="w-full border-2 pr-10 pl-4 py-3 rounded-full bg-white text-gray-900 placeholder-gray-500"
           />
           <button 
             type="submit" 

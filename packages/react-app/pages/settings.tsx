@@ -5,6 +5,7 @@ import { useWeb3 } from "@/contexts/useWeb3";
 import { trpc } from '../utils/trpc';
 import BackButton from '@/components/BackButton';
 import { uploadImage } from '@/utils/imageUpload';
+import { IDKitWidget, VerificationLevel } from '@worldcoin/idkit';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -21,10 +22,37 @@ export default function SettingsPage() {
   });
 
   const updateUserMutation = trpc.user.updateUser.useMutation();
+  const verifyWorldcoinMutation = trpc.user.verifyWorldcoin.useMutation();
 
   useEffect(() => {
     getUserAddress();
   }, []);
+
+  function formatAppId(appId: string): `app_${string}` {
+    return appId.startsWith('app_') ? (appId as `app_${string}`) : `app_${appId}`;
+  }
+  const { data: worldcoinProof, refetch: refetchWorldcoinProof } = trpc.user.getWorldcoinProof.useQuery(
+    { address: address || '' },
+    { enabled: !!address }
+  );
+  
+  const handleVerify = async (proof: any) => {
+    try {
+      await verifyWorldcoinMutation.mutateAsync({
+        proof,
+        address: address || '',
+      });
+      alert('Worldcoin verification successful!');
+    } catch (error) {
+      console.error('Error verifying with Worldcoin:', error);
+      alert('Failed to verify with Worldcoin. Please try again.');
+    }
+  };
+
+  const onSuccess = () => {
+    // You can add any additional actions here after successful verification
+    console.log('Worldcoin verification completed');
+  };
 
   useEffect(() => {
     if (userQuery.data) {
@@ -134,6 +162,42 @@ export default function SettingsPage() {
           className="mt-4 bg-gradient-to-r from-[#fcb603] to-[#f98307]"
         />
       </form>
+      <div className="mt-6 w-full max-w-md">
+        <h2 className="text-lg font-semibold mb-2">Worldcoin Verification</h2>
+        {worldcoinProof ? (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+            <strong className="font-bold">Verified!</strong>
+            <p className="text-sm">
+              Verification Level: {worldcoinProof.verificationLevel}
+              <br />
+              Verified on: {new Date(worldcoinProof.createdAt).toLocaleString()}
+            </p>
+          </div>
+        ) : (
+          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-4">
+            <strong className="font-bold">Not Verified</strong>
+            <p className="text-sm">
+              Verify your humanhood with Worldcoin to enhance your account security.
+            </p>
+          </div>
+        )}
+        <IDKitWidget
+          app_id={formatAppId(process.env.NEXT_PUBLIC_WORLDCOIN_APP_ID || '')}
+          action="identity-verificatoin"
+          onSuccess={onSuccess}
+          handleVerify={handleVerify}
+          verification_level={VerificationLevel.Device}
+        >
+          {({ open }) => (
+            <PrimaryButton
+              title={worldcoinProof ? "Re-verify with Worldcoin" : "Verify with Worldcoin"}
+              onClick={open}
+              widthFull
+              className="bg-gradient-to-r from-[#fcb603] to-[#f98307]"
+            />
+          )}
+        </IDKitWidget>
+      </div>
     </div>
   );
 }

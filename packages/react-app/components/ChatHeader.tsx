@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChevronLeftIcon, UserCircleIcon } from '@heroicons/react/24/solid';
+import { ShieldCheckIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
 interface User {
@@ -10,6 +11,9 @@ interface User {
   avatarUrl: string | null;
   createdAt: string;
   updatedAt: string;
+  worldcoinProof?: {
+    verificationLevel: string;
+  } | null;
 }
 
 interface Item {
@@ -25,29 +29,33 @@ interface ChatHeaderProps {
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({ otherUser, item, isBuying }) => {
   return (
-    <header className="bg-white shadow-sm border-b border-[#fcb603] ">
+    <header className="bg-white shadow-sm border-b border-[#fcb603]">
       <div className='flex items-center justify-between p-4 bg-gray-200'>
         <div className="flex items-center flex-between space-x-3">
             <Link href="/chats" className="text-gray-600 hover:text-gray-800 transition-colors">
                 <ChevronLeftIcon className="h-6 w-6" />
             </Link>
             {otherUser.avatarUrl ? (
-                
-            <img src={otherUser.avatarUrl} alt={otherUser.username || 'User'} className="h-10 w-10 rounded-full" />
+                <img src={otherUser.avatarUrl} alt={otherUser.username || 'User'} className="h-10 w-10 rounded-full" />
             ) : (
-            <UserCircleIcon className="h-10 w-10 text-gray-400" />
+                <UserCircleIcon className="h-10 w-10 text-gray-400" />
             )}
             <div>
-            <h2 className="text-xl font-semibold">{otherUser.username || 'Unknown User'}</h2>
-            <Link href={`/item/${item.id}`} className="text-sm text-gray-500 hover:underline">
-                {item.title}
-            </Link>
+                <div className="flex items-center">
+                    <h2 className="text-xl font-semibold">{otherUser.username || 'Unknown User'}</h2>
+                    {otherUser.worldcoinProof && (
+                        <ShieldCheckIcon className="h-5 w-5 text-green-500 ml-1" title="Worldcoin Verified" />
+                    )}
+                </div>
+                <Link href={`/item/${item.id}`} className="text-sm text-gray-500 hover:underline">
+                    {item.title}
+                </Link>
             </div>
         </div>
         
         <div className="bg-gray-100 rounded-full px-3 py-1 inline-block">
             <span className="text-sm font-medium text-gray-700">
-            {isBuying ? 'Buying' : 'Selling'}
+                {isBuying ? 'Buying' : 'Selling'}
             </span>
         </div>
       </div>

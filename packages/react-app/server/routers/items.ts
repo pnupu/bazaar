@@ -21,16 +21,26 @@ export const itemsRouter = router({
     }),
   
     getItem: publicProcedure
-      .input(z.object({ id: z.string() }))
-      .query(async ({ input }) => {
-        const item = await prisma.item.findUnique({
-          where: { id: input.id },
-          include: {
-            seller: true
-          }
-        });
-        return item;
-      }),
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const item = await prisma.item.findUnique({
+        where: { id: input.id },
+        include: {
+          seller: {
+            include: {
+              worldcoinProof: {
+                select: {
+                  verificationLevel: true,
+                  createdAt: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return item;
+    }),
     createItem: publicProcedure
       .input(z.object({
         title: z.string(),
