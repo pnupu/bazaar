@@ -34,7 +34,7 @@ function PrimaryButton({
         ${
           disabled || loading
             ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-            : "bg-colors-secondary text-white hover:bg-colors-primaryComp"
+            : "bg-gradient-to-r from-[#fcb603] to-[#f98307] text-white hover:bg-colors-primaryComp"
         }
       `}
     >

@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useWeb3 } from "@/contexts/useWeb3";
 import { trpc } from '../utils/trpc';
 import BackButton from '@/components/BackButton';
 import Link from 'next/link';
 import ItemPrice from '@/components/ItemPrice';
+import { SearchContext } from '@/contexts/SearchContext';
+import Spinner from '@/components/Spinner';
 
 type Item = {
   id: string;
@@ -20,6 +22,9 @@ export default function MyListingsPage() {
   const { address, getUserAddress } = useWeb3();
   const [listings, setListings] = useState<Item[]>([]);
   const [boughtItems, setBoughtItems] = useState<Item[]>([]);
+
+  const { setIsSearchVisible } = useContext(SearchContext);
+  setIsSearchVisible(true)
 
   const userListingsQuery = trpc.items.getUserItems.useQuery(
     { address: address || '' },
@@ -44,7 +49,7 @@ export default function MyListingsPage() {
     }
   }, [userListingsQuery.data, userBoughtItemsQuery.data]);
 
-  if (userListingsQuery.isLoading || userBoughtItemsQuery.isLoading) return <div>Loading...</div>;
+  if (userListingsQuery.isLoading || userBoughtItemsQuery.isLoading) return <Spinner />;
   if (userListingsQuery.isError || userBoughtItemsQuery.isError) return <div>Error loading data</div>;
 
   const renderItemList = (items: Item[], title: string) => (

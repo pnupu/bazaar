@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useRouter } from 'next/router';
 import { trpc } from '../../utils/trpc';
 import { useWeb3 } from "@/contexts/useWeb3";
@@ -9,6 +9,7 @@ import ChatHeader from '@/components/ChatHeader';
 import { useChainId } from 'wagmi';
 import ItemPrice from '@/components/ItemPrice';
 import Spinner from '@/components/Spinner';
+import { SearchContext } from '@/contexts/SearchContext';
 
 
 interface OfferModalProps {
@@ -52,6 +53,9 @@ const ChatPage = () => {
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const chainId = useChainId();
   const [localMessages, setLocalMessages] = useState<any[]>([]);
+
+  const { setIsSearchVisible } = useContext(SearchContext);
+  setIsSearchVisible(true)
 
   const { mutate: makeOffer } = trpc.chat.makeOffer.useMutation({
     onSuccess: () => refetch()

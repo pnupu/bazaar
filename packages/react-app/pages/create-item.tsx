@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/router';
 import {  useCreateItem } from '@/utils/api';
 import PrimaryButton from '@/components/Button';
@@ -14,6 +14,7 @@ interface LocationData {
 }
 
 import dynamic from 'next/dynamic';
+import { SearchContext } from '@/contexts/SearchContext';
 
 const Map = dynamic(() => import('@/components/Map'), {
   ssr: false,
@@ -71,6 +72,12 @@ export default function CreateItemPage() {
     const country = firstComponent;
     const city = ninthOrLastComponent;
     const position: [number, number] = [parseFloat(lat), parseFloat(lon)];
+
+    const { setIsSearchVisible } = useContext(SearchContext);
+    useEffect(() => {
+      
+         setIsSearchVisible(false)
+    }, []);
 
     setCoordinates(position);
     setLocationName(city + ", " + country)
