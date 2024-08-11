@@ -21,7 +21,9 @@
   "homepage": "https://github.com/celo-org/celo-composer/blob/main/README.md",
   "workspaces": [
     "packages/*",
-    "hardhat/*"
+    "hardhat/*",
+    "farcaster/*",
+    "theGraph/*"
   ],
   "keywords": [
     "celo-composer",
