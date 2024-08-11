@@ -53,26 +53,38 @@ export default function MyListingsPage() {
       {items.length === 0 ? (
         <p>No items to display.</p>
       ) : (
-        items.map((item) => (
-          <Link href={`/item/${item.id}`} key={item.id}>
-            <div className="mb-4 p-4 border rounded-lg shadow-sm">
-              {item.imageUrl && (
-                <img src={item.imageUrl} alt={item.title} className="w-full h-40 object-cover rounded-md mb-2" />
-              )}
-              <h3 className="text-lg font-semibold">{item.title}</h3>
-              <p className="text-gray-600">{item.description}</p>
-              <p className="text-gray-800 mt-2">Price: {<ItemPrice priceCUSD={Number(item.price.toFixed(2))} />}</p>
-              <p className="text-gray-600 mt-1">Status: {item.status}</p>
-            </div>
-          </Link>
-        ))
+        <div className="space-y-2">
+          {items.map((item) => (
+            <Link href={`/item/${item.id}`} key={item.id}>
+              <div className="border bg-white p-4 rounded-lg cursor-pointer hover:bg-gray-100">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 mr-4">
+                    <img
+                      src={item.imageUrl ?? `https://via.placeholder.com/100x100.png?text=${encodeURIComponent(item.title.charAt(0))}`}
+                      alt={item.title}
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  </div>
+                  <div className="flex-grow">
+                    <p className="font-semibold">{item.title}</p>
+                    <p className="text-sm text-gray-500">Price: {<ItemPrice priceCUSD={Number(item.price.toFixed(2))} />}</p>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    Status: {item.status}
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
       )}
     </div>
   );
 
+
   return (
     <div className="flex flex-col items-center p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md pb-4">
         <div className="flex items-center justify-between mb-4">
           <BackButton />
           <h1 className="text-2xl font-bold">My Items</h1>

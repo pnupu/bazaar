@@ -1,31 +1,37 @@
-// components/BackButton.tsx
-
 import React from 'react';
 import { useRouter } from 'next/router';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon } from '@heroicons/react/24/solid';
 
 interface BackButtonProps {
   href?: string;
+  label?: string;
+  className?: string;
 }
 
-const BackButton: React.FC<BackButtonProps> = ({ href }) => {
+const BackButton: React.FC<BackButtonProps> = ({ 
+  href, 
+  label = '', 
+  className = ''
+}) => {
   const router = useRouter();
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     if (href) {
       router.push(href);
     } else {
-      router.push('/');
+      router.back();
     }
   };
 
   return (
     <button
       onClick={handleClick}
-      className="flex items-center font-bold text-amber-500 hover:text-colors-primaryComp transition-colors"
+      className={`flex items-center font-extrabold text-lg text-amber-500 hover:text-amber-600 transition-colors ${className}`}
+      aria-label={label}
     >
-      <ArrowLeftIcon className="h-5 w-5 mr-1" />
-      <span>Back</span>
+      <ChevronLeftIcon className="h-8 w-8 mr-2" />
+      <span className="sr-only">{label}</span>
     </button>
   );
 };

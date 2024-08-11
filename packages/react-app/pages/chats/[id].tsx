@@ -204,7 +204,7 @@ const ChatPage = () => {
         ))}
         {localMessages.map(msg => (
           <div key={msg.id} className={`mb-4 ${msg.senderId === userQuery.data?.id ? 'flex justify-end' : 'flex justify-start'}`}>
-            <div className="flex flex-col items-end max-w-[70%] pr-2">
+            <div className="flex flex-col items-end max-w-[70%] pl-2 pr-2">
               <div className={`px-3 py-2 rounded-2xl ${
                 msg.senderId === userQuery.data?.id 
                   ? 'bg-[#fcb603] text-white rounded-br-md' 

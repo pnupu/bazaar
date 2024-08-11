@@ -31,16 +31,27 @@ const ChatListPage = () => {
             const isUserSeller = conv.seller.address === address;
             const otherUser = conv.seller.address === address ? conv.buyer : conv.seller;
             return (
-              <Link href={`/chats/${conv.id}`} key={conv.id}>
-                <div className="border bg-white p-4 rounded-lg cursor-pointer hover:bg-gray-100">
-                  <p className="font-semibold">{otherUser.username || 'Unknown User'}</p>
-                  <p className="text-sm text-gray-500">Item: {conv.item.title}</p>
-                  <p className="text-sm text-gray-500">
-                    {isUserSeller ? 'You are selling' : 'You are buying'}
-                  </p>
-                  <p className="text-sm text-gray-500 truncate">
-                    {conv.messages[0]?.content || 'No messages yet'}
-                  </p>
+              <Link href={`/chats/${conv.id}`} className="block">
+                <div className="border bg-white p-4 mb-2 rounded-lg cursor-pointer hover:bg-gray-100">
+                  <div className="grid grid-cols-[100px_1fr] gap-2">
+                    <div className="font-semibold">User:</div>
+                    <div>{otherUser.username || 'Unknown User'}</div>
+
+                    <div className="font-semibold">Item:</div>
+                    <div>{conv.item.title}</div>
+
+                    <div className="font-semibold">
+                      {isUserSeller ? 'Seller:' : 'Buyer:'}
+                    </div>
+                    <div>{isUserSeller ? 'You are selling' : 'You are buying'}</div>
+                  </div>
+                  
+                  <div className="mt-2">
+                    <div className="font-semibold text-gray-600">Recent Message:</div>
+                    <div className="text-sm text-gray-500 italic truncate">
+                      {conv.messages[0]?.content || 'No messages yet'}
+                    </div>
+                  </div>
                 </div>
               </Link>
             );

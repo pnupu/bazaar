@@ -1,6 +1,6 @@
 // components/BazaarHomepage.tsx
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import PrimaryButton from "@/components/Button";
 import Image from "next/image";
 import { useItems } from "@/utils/api";
@@ -13,6 +13,7 @@ import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Input } from '@headlessui/react'
 import ItemPrice from "@/components/ItemPrice";
 import Spinner from "@/components/Spinner";
+import { SearchContext } from "@/contexts/SearchContext";
 
 type Listing = {
     status: string;
@@ -34,6 +35,24 @@ export default function BazaarHomepage() {
 
   const [highlightedItems, setHighlightedItems] = useState<Listing[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const { setIsSearchVisible } = useContext(SearchContext);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (searchInputRef.current) {
+        const rect = searchInputRef.current.getBoundingClientRect();
+        setIsSearchVisible(rect.top > 0 && rect.bottom <= window.innerHeight);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [setIsSearchVisible]);
 
   const handleSellClick = () => {
     router.push('/create-item');
@@ -63,6 +82,8 @@ export default function BazaarHomepage() {
       <form onSubmit={handleSearch} className="w-full mb-4 relative focus:ring-[#f98307] focus:border-[#f98307]">
         <div className="relative focus:ring-[#f98307] focus:border-[#f98307]">
           <Input
+            ref={searchInputRef}
+            id="search-input"
             type="text"
             placeholder=" Search items..."
             value={searchQuery}

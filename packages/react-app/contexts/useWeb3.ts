@@ -14,7 +14,7 @@ import { useConfig, useChainId } from "wagmi";
 import { celoAlfajores, baseSepolia } from "viem/chains";
 
 const publicClient = createPublicClient({
-  chain: celoAlfajores,
+  chain: celoAlfajores, 
   transport: http(),
 });
 
