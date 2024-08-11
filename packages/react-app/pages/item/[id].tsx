@@ -349,7 +349,7 @@ export default function ItemDetailPage() {
             </div>
           </div>
         )}
-      <div className="mb-4 p-4 bg-gray-100 rounded-lg">
+      <div className="mb-4 p-4 bg-white rounded-lg">
       <div className="flex items-center mb-2">
             <img
               src={item.seller.avatarUrl || '/default-avatar.png'}
@@ -404,6 +404,7 @@ export default function ItemDetailPage() {
             className="w-full h-auto rounded-lg shadow-md"
           />
         )}
+        <div className='bg-white p-4 mt-2 rounded-lg shadow-md'>
         {isEditing ? (
           <input
             type="text"
@@ -412,7 +413,7 @@ export default function ItemDetailPage() {
             className="text-2xl font-bold mt-4 w-full p-2 border rounded"
           />
         ) : (
-          <h1 className="text-2xl font-bold mt-4">{item.title}</h1>
+          <h1 className="text-2xl font-bold">{item.title}</h1>
         )}
         {isEditing ? (
           <input
@@ -433,6 +434,7 @@ export default function ItemDetailPage() {
         ) : (
           <p className="mt-4">{item.description}</p>
         )}
+        </div>
 
         {isEditing && (
           <div className="mb-4 mt-4">
