@@ -6,6 +6,7 @@ import BackButton from '@/components/BackButton';
 import Link from 'next/link';
 import ItemPrice from '@/components/ItemPrice';
 import { SearchContext } from '@/contexts/SearchContext';
+import Spinner from '@/components/Spinner';
 
 type Item = {
   id: string;
@@ -48,7 +49,7 @@ export default function MyListingsPage() {
     }
   }, [userListingsQuery.data, userBoughtItemsQuery.data]);
 
-  if (userListingsQuery.isLoading || userBoughtItemsQuery.isLoading) return <div>Loading...</div>;
+  if (userListingsQuery.isLoading || userBoughtItemsQuery.isLoading) return <Spinner />;
   if (userListingsQuery.isError || userBoughtItemsQuery.isError) return <div>Error loading data</div>;
 
   const renderItemList = (items: Item[], title: string) => (
