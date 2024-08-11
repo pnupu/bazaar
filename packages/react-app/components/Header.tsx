@@ -2,7 +2,7 @@ import { Dialog, Disclosure, Popover, PopoverButton, PopoverPanel, Transition, T
 import { Bars3Icon, MagnifyingGlassIcon, WalletIcon, XMarkIcon, ChatBubbleOvalLeftEllipsisIcon, Bars4Icon } from "@heroicons/react/24/outline";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { useConnect, useAccount } from "wagmi";
 import { injected } from "wagmi/connectors";
 import Link from 'next/link';
@@ -10,6 +10,7 @@ import { useWeb3 } from "@/contexts/useWeb3";
 import { trpc } from '../utils/trpc';
 import { useRouter } from "next/router";
 import { useAuth } from "@/contexts/AuthContext";
+import { SearchContext } from "@/contexts/SearchContext";
 
 export default function Header() {
   const [hideConnectBtn, setHideConnectBtn] = useState(true);
@@ -22,6 +23,8 @@ export default function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const openModal = () => setIsModalOpen(!isModalOpen);
   const { isAuthenticated } = useAuth();
+  const { isSearchVisible } = useContext(SearchContext);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const userQuery = trpc.user.getUserWithAddress.useQuery({ address: address || '' }, {
     enabled: !!address,
@@ -54,10 +57,11 @@ export default function Header() {
     }
   }, [userQuery.data]);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = (e: React.FormEvent, close: () => void) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      close();
     }
   };
 
@@ -75,6 +79,7 @@ export default function Header() {
           ) : (                
             <div className="flex items-center space-x-2">
           <div className="flex items-center space-x-2">
+          {!isSearchVisible && ( 
             <Popover className="sm:hidden relative">
                 {({ open, close }) => (
                   <>
@@ -82,35 +87,38 @@ export default function Header() {
                       <MagnifyingGlassIcon className="h-5 w-5" aria-hidden="true" />
                     </PopoverButton>
                     <Transition
-                      as={Fragment}
-                      enter="transition ease-out duration-200"
-                      enterFrom="opacity-0 translate-y-1"
-                      enterTo="opacity-100 translate-y-0"
-                      leave="transition ease-in duration-150"
-                      leaveFrom="opacity-100 translate-y-0"
-                      leaveTo="opacity-0 translate-y-1"
-                    >
-                      <PopoverPanel className="fixed inset-x-0 top-16 z-10 px-4 sm:px-6 lg:px-8 ">
-                        <div className="mx-auto max-w-3xl">
-                          <form onSubmit={(e) => { handleSearchSubmit(e); close(); }} className="relative">
-                            <input
-                              type="text"
-                              className="w-full border-2 border-[#8B4513] pr-10 rounded-full focus:ring-[#A0522D] focus:border-[#A0522D] bg-white text-gray-900 placeholder-gray-500"
-                              placeholder=" Search..."
-                              value={searchQuery}
-                              onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                            <button type="submit" className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                              <MagnifyingGlassIcon className="h-6 w-6 text-gray-400" aria-hidden="true" />
-                            </button>
-                          </form>
-                        </div>
-                      </PopoverPanel>
-                    </Transition>
+                        show={open}
+                        enter="transition ease-out duration-200"
+                        enterFrom="opacity-0 translate-y-1"
+                        enterTo="opacity-100 translate-y-0"
+                        leave="transition ease-in duration-150"
+                        leaveFrom="opacity-100 translate-y-0"
+                        leaveTo="opacity-0 translate-y-1"
+                      >
+                        <PopoverPanel className="fixed inset-x-0 pd-2 pt-4 pb-6 top-16 z-10 px-4 sm:px-6 lg:px-8">
+                          <div className="mx-auto max-w-3xl">
+                            <form onSubmit={(e) => handleSearchSubmit(e, close)} className="relative">
+                              <input
+                                type="text"
+                                className="w-full border-2 border-[#8B4513] pr-10 pl-4 py-3 rounded-full bg-white text-gray-900 placeholder-gray-500 focus:ring-[#f98307] focus:border-[#f98307] focus:outline-none transition-colors"
+                                placeholder="Search items..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                              />
+                              <button 
+                                type="submit" 
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                              >
+                                <MagnifyingGlassIcon className="h-6 w-6 text-[#f98307]" aria-hidden="true" />
+                              </button>
+                            </form>
+                          </div>
+                        </PopoverPanel>
+                      </Transition>
                   </>
                 )}
               </Popover>
-            
+            )}
             <Link href="/my-listings">
               <button className="rounded-full bg-[#8B4513] p-2 text-white hover:bg-[#A0522D] focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#fcb603] transition-colors">
                 <Bars3Icon className="h-6 w-6 text-white" aria-hidden="true" />

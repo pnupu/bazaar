@@ -1,6 +1,6 @@
 // pages/search.tsx
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { useSearchItems } from "@/utils/api";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -9,6 +9,7 @@ import ItemPrice from "@/components/ItemPrice";
 import Spinner from "@/components/Spinner";
 import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
 import HeaderWithBackButton from "@/components/SearchHeaderWithBackButton";
+import { SearchContext } from "@/contexts/SearchContext";
 
 type Listing = {
   id: string;
@@ -25,6 +26,23 @@ export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const { data: searchResults, isLoading } = useSearchItems(searchQuery);
   const [displayedItems, setDisplayedItems] = useState<Listing[]>([]);
+  const { setIsSearchVisible } = useContext(SearchContext);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (searchInputRef.current) {
+        const rect = searchInputRef.current.getBoundingClientRect();
+        setIsSearchVisible(rect.top > 0 && rect.bottom <= window.innerHeight);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [setIsSearchVisible]);
 
   useEffect(() => {
     if (router.query.q) {
@@ -52,6 +70,7 @@ export default function SearchPage() {
       <HeaderWithBackButton title="Search Items" />
       <form onSubmit={handleSearch} className="relative w-full mb-4 focus:ring-[#f98307] focus:border-[#f98307]">
         <input
+          ref={searchInputRef}
           type="text"
           placeholder="Search items..."
           value={searchQuery}

@@ -15,6 +15,7 @@ import { CurrencyProvider } from '../contexts/CurrencyContext';
 import dynamic from 'next/dynamic';
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { SearchProvider } from "@/contexts/SearchContext";
 
 const connectors = connectorsForWallets(
   [
@@ -50,10 +51,12 @@ function App({ Component, pageProps }: AppProps) {
         <RainbowKitProvider>
           <AuthProvider>
             <CurrencyProvider>
-              <Layout>
-                <LeafletCSS />
-                <Component {...pageProps} />
-              </Layout>
+              <SearchProvider>
+                <Layout>
+                  <LeafletCSS />
+                  <Component {...pageProps} />
+                </Layout>
+              </SearchProvider>
             </CurrencyProvider>
           </AuthProvider>
         </RainbowKitProvider>
