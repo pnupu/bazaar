@@ -109,15 +109,15 @@ export default function BazaarHomepage() {
       <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {highlightedItems.map((item) => (
                 <Link href={`/item/${item.id}`} key={item.id}>
-                  <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition duration-300 overflow-hidden">
-                    <div className="relative aspect-w-4 aspect-h-3">
+                  <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition duration-300 overflow-hidden flex flex-col h-full">
+                    <div className="flex-grow">
                       <img
                         src={item.imageUrl ?? `https://via.placeholder.com/400x300.png?text=${encodeURIComponent(item.title)}`}
                         alt={item.title}
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="p-6">
+                    <div className="p-4 bg-white">
                       <h3 className="text-xl font-semibold text-gray-900 mb-2">{item.title}</h3>
                       <div className="flex justify-between items-center">
                         <p className="text-2xl font-bold text-gray-900"><ItemPrice priceCUSD={Number(item.price.toFixed(2))} /></p>

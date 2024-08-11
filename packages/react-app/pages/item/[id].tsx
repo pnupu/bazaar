@@ -15,6 +15,7 @@ import axios from 'axios';
 import { ShieldCheckIcon, ExclamationTriangleIcon} from '@heroicons/react/24/outline';
 import ItemPrice from '@/components/ItemPrice';
 import Spinner from '@/components/Spinner';
+import Modal from '@/components/InfoModal';
 
 const Map = dynamic(() => import('@/components/Map'), {
   ssr: false,
@@ -58,6 +59,11 @@ export default function ItemDetailPage() {
   const [coordinates, setCoordinates] = useState<[number, number]>([0, 0]);
   const [isSending, setIsSending] = useState(false);
   const [transactionDetails, setTransactionDetails] = useState<TransactionDetails | null>(null);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
+
 
   const addFeedbackMutation = trpc.items.addFeedback.useMutation();
   const getFeedbackQuery = trpc.items.getFeedback.useQuery({ itemId: id as string }, {
@@ -198,11 +204,14 @@ export default function ItemDetailPage() {
           transactionHash: item.txHash || null,
         },
       });
-
-      alert('Feedback submitted successfully!');
+      setModalTitle('Success');
+      setModalMessage('Feedback submitted successfully!');
+      setModalOpen(true);
     } catch (error) {
       console.error('Error submitting feedback:', error);
-      alert('Failed to submit feedback. Please try again.');
+      setModalTitle('Error');
+      setModalMessage('Failed to submit feedback. Please try again.');
+      setModalOpen(true);
     }
   };
 
@@ -264,10 +273,14 @@ export default function ItemDetailPage() {
       await refetch();
 
       // Show a success message
-      alert('Purchase successful! The item is now marked as sold.');
+      setModalTitle('Success');
+      setModalMessage('Purchase successful! The item is now marked as sold.');
+      setModalOpen(true);
     } catch (error) {
       console.error('Error during purchase:', error);
-      alert('There was an error during the purchase. Please try again.');
+      setModalTitle('Error');
+      setModalMessage('There was an error during the purchase. Please try again.');
+      setModalOpen(true);
     } finally {
       setIsSending(false);
     }
@@ -571,6 +584,12 @@ export default function ItemDetailPage() {
             </a>
           </div>
         )}
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        message={modalMessage}
+      />
     </div>
   );
 }

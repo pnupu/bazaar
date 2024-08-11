@@ -9,6 +9,7 @@ import { useCurrency } from '@/contexts/CurrencyContext';
 import { IDKitWidget, VerificationLevel } from '@worldcoin/idkit';
 import Spinner from '@/components/Spinner';
 import HeaderWithBackButton from '@/components/SearchHeaderWithBackButton';
+import Modal from '@/components/InfoModal';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -20,6 +21,11 @@ export default function SettingsPage() {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { currency, toggleCurrency } = useCurrency();
+
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
 
   const userQuery = trpc.user.getUserWithAddress.useQuery({ address: address || '' }, {
     enabled: !!address,
@@ -46,11 +52,14 @@ export default function SettingsPage() {
         proof,
         address: address || '',
       });
-      alert('Worldcoin verification successful!');
+      setModalTitle('Success');
+      setModalMessage('Worldcoin verification successful!');
+      setModalOpen(true);
     } catch (error) {
       console.error('Error verifying with Worldcoin:', error);
-      alert('Failed to verify with Worldcoin. Please try again.');
-    }
+      setModalTitle('Error');
+      setModalMessage('Failed to verify with Worldcoin. Please try again.');
+      setModalOpen(true);}
   };
 
   const onSuccess = () => {
@@ -92,10 +101,14 @@ export default function SettingsPage() {
         bio,
         avatarUrl: newAvatarUrl,
       });
-      alert('Profile updated successfully!');
+      setModalTitle('Success');
+      setModalMessage('Profile updated successfully!');
+      setModalOpen(true);
     } catch (error) {
       console.error('Error updating user:', error);
-      alert('Failed to update profile. Please try again.');
+      setModalTitle('Error');
+      setModalMessage('Failed to update profile. Please try again.');
+      setModalOpen(true);
     } finally {
       setIsUploading(false);
     }
@@ -216,6 +229,13 @@ export default function SettingsPage() {
           )}
         </IDKitWidget>
       </div>
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        message={modalMessage}
+      />
+
     </div>
   );
 }
