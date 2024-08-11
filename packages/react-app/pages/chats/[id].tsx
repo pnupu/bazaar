@@ -236,12 +236,12 @@ const ChatPage = () => {
             Send
           </button>
         </div>
-        {!isUserSeller && conversation.item.status === "SOLD" && (
+        {!isUserSeller && conversation.item.status !== "SOLD" && (
 
           <div className="flex justify-between items-center">
           <button
             onClick={() => setIsOfferModalOpen(true)}
-            disabled={isUserSeller || conversation.item.status === 'SOLD'}
+            disabled={isUserSeller}
             className="bg-gradient-to-r from-[#fcb603] to-[#f98307] text-white px-4 py-2 rounded-lg"
             >
             Make Offer
