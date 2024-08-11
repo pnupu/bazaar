@@ -7,6 +7,8 @@ import pusherClient from '../../utils/pusher';
 import Link from 'next/link';
 import ChatHeader from '@/components/ChatHeader';
 import { useChainId } from 'wagmi';
+import ItemPrice from '@/components/ItemPrice';
+import Spinner from '@/components/Spinner';
 
 
 interface OfferModalProps {
@@ -112,7 +114,7 @@ const ChatPage = () => {
   };
 
   if (isLoading || userQuery.isLoading) {
-    return <div className="flex justify-center items-center h-screen">Loading conversation...</div>;
+    return <div className="flex justify-center items-center h-screen">{<Spinner />}</div>;
   }
 
   if (!conversation || !userQuery.data) {
@@ -203,7 +205,7 @@ const ChatPage = () => {
           >
             Make Offer
           </button>
-          <span>Current Price: ${conversation.item.price}</span>
+          <span>Current Price: ${<ItemPrice priceCUSD={Number(conversation.item.price.toFixed(2))} />}</span>
         </div>
       </div>
 

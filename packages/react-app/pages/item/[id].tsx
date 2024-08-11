@@ -13,6 +13,8 @@ import { useChainId } from 'wagmi';
 import { baseSepolia } from 'viem/chains';
 import axios from 'axios';
 import { ShieldCheckIcon, ExclamationTriangleIcon} from '@heroicons/react/24/outline';
+import ItemPrice from '@/components/ItemPrice';
+import Spinner from '@/components/Spinner';
 
 const Map = dynamic(() => import('@/components/Map'), {
   ssr: false,
@@ -110,7 +112,7 @@ export default function ItemDetailPage() {
     }
   }, [item]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return  <Spinner />
   if (error) return <div>Error loading item</div>;
   if (!item) return <div>Item not found</div>;
   
@@ -410,7 +412,7 @@ export default function ItemDetailPage() {
             className="text-xl font-semibold mt-2 w-full p-2 border rounded"
           />
         ) : (
-          <p className="text-xl font-semibold mt-2">${item.price.toFixed(2)}</p>
+          <p className="text-xl font-semibold mt-2">${<ItemPrice priceCUSD={Number(item.price.toFixed(2))} />}</p>
         )}
         {isEditing ? (
           <textarea

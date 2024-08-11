@@ -5,7 +5,9 @@ import { useWeb3 } from "@/contexts/useWeb3";
 import { trpc } from '../utils/trpc';
 import BackButton from '@/components/BackButton';
 import { uploadImage } from '@/utils/imageUpload';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { IDKitWidget, VerificationLevel } from '@worldcoin/idkit';
+import Spinner from '@/components/Spinner';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -16,6 +18,7 @@ export default function SettingsPage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { currency, toggleCurrency } = useCurrency();
 
   const userQuery = trpc.user.getUserWithAddress.useQuery({ address: address || '' }, {
     enabled: !!address,
@@ -59,6 +62,7 @@ export default function SettingsPage() {
       setUsername(userQuery.data.username || '');
       setBio(userQuery.data.bio || '');
       setAvatarUrl(userQuery.data.avatarUrl || '');
+      
     }
   }, [userQuery.data]);
 
@@ -100,7 +104,7 @@ export default function SettingsPage() {
     fileInputRef.current?.click();
   };
 
-  if (userQuery.isLoading) return <div>Loading user data...</div>;
+  if (userQuery.isLoading) return <Spinner />;
   if (userQuery.isError) return <div>Error loading user data</div>;
 
   return (
@@ -152,6 +156,25 @@ export default function SettingsPage() {
             onChange={(e) => setBio(e.target.value)}
             className="w-full p-2 border rounded"
           />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-2">Currency Preference</label>
+          <div className="flex items-center">
+            <span className={`mr-2 ${currency === 'USD' ? 'font-bold' : ''}`}>USD</span>
+            <div 
+              className={`w-14 h-8 flex items-center bg-gray-300 rounded-full p-1 cursor-pointer ${
+                currency === 'EUR' ? 'bg-green-400' : ''
+              }`}
+              onClick={toggleCurrency}
+            >
+              <div
+                className={`bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-300 ${
+                  currency === 'EUR' ? 'translate-x-6' : ''
+                }`}
+              ></div>
+            </div>
+            <span className={`ml-2 ${currency === 'EUR' ? 'font-bold' : ''}`}>EUR</span>
+          </div>
         </div>
         <PrimaryButton
           title="Update Profile"

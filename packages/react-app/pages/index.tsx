@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import BazaarHomepage from "@/features/Homepage";
 import { useAccount } from "wagmi";
+import Spinner from "@/components/Spinner";
 
 export default function Home() {
   const {
@@ -38,7 +39,7 @@ export default function Home() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <div className="text-xl font-semibold">Loading...</div>
+         <Spinner />
       </div>
     );
   }

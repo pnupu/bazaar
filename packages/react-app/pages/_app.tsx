@@ -11,6 +11,7 @@ import Layout from "../components/Layout";
 import { trpc } from '../utils/trpc';
 import { AuthProvider } from '../contexts/AuthContext';
 import "../styles/globals.css";
+import { CurrencyProvider } from '../contexts/CurrencyContext';
 import dynamic from 'next/dynamic';
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -48,10 +49,12 @@ function App({ Component, pageProps }: AppProps) {
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
           <AuthProvider>
-            <Layout>
-              <LeafletCSS />
-              <Component {...pageProps} />
-            </Layout>
+            <CurrencyProvider>
+              <Layout>
+                <LeafletCSS />
+                <Component {...pageProps} />
+              </Layout>
+            </CurrencyProvider>
           </AuthProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
