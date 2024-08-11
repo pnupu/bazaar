@@ -8,6 +8,7 @@ import { uploadImage } from '@/utils/imageUpload';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { IDKitWidget, VerificationLevel } from '@worldcoin/idkit';
 import Spinner from '@/components/Spinner';
+import HeaderWithBackButton from '@/components/SearchHeaderWithBackButton';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -109,13 +110,7 @@ export default function SettingsPage() {
 
   return (
     <div className="flex flex-col items-center p-6">
-      <div className="w-full max-w-md">
-      <BackButton />
-        <div className="flex items-center justify-between mb-4 pt-2 gap-4">
-          <h1 className="text-2xl font-bold flex text-center">User Settings</h1>
-          <div className="w-8"></div> 
-        </div>
-      </div>
+      <HeaderWithBackButton title="User Settings" />
       <form onSubmit={handleSubmit} className="w-full max-w-md">
         <div className="mb-4 flex flex-col items-center">
           <img 

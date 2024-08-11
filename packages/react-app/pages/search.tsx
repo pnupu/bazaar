@@ -7,6 +7,8 @@ import { useRouter } from 'next/router';
 import BackButton from '@/components/BackButton';
 import ItemPrice from "@/components/ItemPrice";
 import Spinner from "@/components/Spinner";
+import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
+import HeaderWithBackButton from "@/components/SearchHeaderWithBackButton";
 
 type Listing = {
   id: string;
@@ -47,21 +49,21 @@ export default function SearchPage() {
 
   return (
     <div className="flex flex-col items-center p-4">
-      <div className="w-full max-w-md mb-4">
-        <div className="flex items-center justify-between mb-4">
-          <BackButton />
-          <h1 className="text-2xl font-bold">Search Items</h1>
-          <div className="w-8"></div>
-        </div>
-      </div>
-      <form onSubmit={handleSearch} className="w-full mb-4">
+      <HeaderWithBackButton title="Search Items" />
+      <form onSubmit={handleSearch} className="relative w-full mb-4 focus:ring-[#f98307] focus:border-[#f98307]">
         <input
           type="text"
           placeholder="Search items..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full border-2 pr-10 pl-4 py-3 rounded-full bg-white text-gray-900 placeholder-gray-500"
         />
+        <button 
+            type="submit" 
+            className="absolute inset-y-0 right-0 pr-3 flex items-center"
+          >
+            <MagnifyingGlassIcon className="h-6 w-6 text-[#f98307]" aria-hidden="true" />
+        </button>
       </form>
       
       {isLoading ? (
