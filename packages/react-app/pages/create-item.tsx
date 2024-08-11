@@ -54,6 +54,10 @@ export default function CreateItemPage() {
       setImagePreview(URL.createObjectURL(e.target.files[0]));
     }
   };
+  const { setIsSearchVisible } = useContext(SearchContext);
+  useEffect(() => {
+       setIsSearchVisible(false)
+  }, []);
 
   const fetchLocationData = async (locationInput: string): Promise<LocationData> => {
     const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationInput)}`);
@@ -72,12 +76,6 @@ export default function CreateItemPage() {
     const country = firstComponent;
     const city = ninthOrLastComponent;
     const position: [number, number] = [parseFloat(lat), parseFloat(lon)];
-
-    const { setIsSearchVisible } = useContext(SearchContext);
-    useEffect(() => {
-      
-         setIsSearchVisible(false)
-    }, []);
 
     setCoordinates(position);
     setLocationName(city + ", " + country)
