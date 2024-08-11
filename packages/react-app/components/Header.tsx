@@ -62,7 +62,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-gradient-to-r from-[#fcb603] to-[#f98307] text-gray-800 shadow-md">
+    <header className="bg-gradient-to-r from-[#fcb603] to-[#f98307] text-gray-800 shadow-md border-b">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">

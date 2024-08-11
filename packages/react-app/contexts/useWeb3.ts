@@ -11,10 +11,10 @@ import {
   parseEther,
   stringToHex,
 } from "viem";
-import { celoAlfajores } from "viem/chains";
+import { celoAlfajores, baseSepolia } from "viem/chains";
 
 const publicClient = createPublicClient({
-  chain: celoAlfajores,
+  chain: celoAlfajores, 
   transport: http(),
 });
 
