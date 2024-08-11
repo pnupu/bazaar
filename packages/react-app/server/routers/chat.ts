@@ -171,6 +171,7 @@ export const chatRouter = router({
     .input(z.object({
       conversationId: z.string(),
       amount: z.number(),
+      chainId: z.number(),
     }))
     .mutation(async ({ input, ctx }) => {
       const conversation = await prisma.conversation.findUnique({
@@ -194,6 +195,7 @@ export const chatRouter = router({
           sellerId: conversation.sellerId,
           conversationId: conversation.id,
           itemId: conversation.item.id,
+          chainId: input.chainId,
         },
       });
 

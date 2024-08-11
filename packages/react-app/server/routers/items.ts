@@ -38,62 +38,62 @@ export const itemsRouter = router({
           },
         },
       });
+      return item;
+    }),
+
+    createItem: protectedProcedure
+    .input(z.object({
+      title: z.string(),
+      description: z.string(),
+      price: z.number(),
+      imageUrl: z.string().optional(),
+      address: z.string(),
+      latitude: z.number().optional(),
+      longitude: z.number().optional(),
+      placeName: z.string().optional(),
+      chainId: z.number(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const { address, chainId, ...itemData } = input;
+
+      const user = await prisma.user.findUnique({
+        where: { address: address }
+      });
+
+      if (!user) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+      }
+
+      const item = await prisma.item.create({
+        data: {
+          ...itemData,
+          status: 'AVAILABLE',
+          sellerId: user.id,
+          chainId, 
+        },
+      });
 
       return item;
     }),
-    createItem: publicProcedure
-      .input(z.object({
-        title: z.string(),
-        description: z.string(),
-        price: z.number(),
-        imageUrl: z.string().optional(),
-        address: z.string(),
-        latitude: z.number().optional(),
-        longitude: z.number().optional(),
-        placeName: z.string().optional(),
-      }))
-      .mutation(async ({ input }) => {
-        const { address, ...itemData } = input;
-  
-  
-        const user = await prisma.user.findUnique({
-          where: {
-            address: address
-          }
-        })
-  
-        if(!user){
-          console.error("User not found ")
-          return;
-        }
-  
-        const item = await prisma.item.create({
-          data: {
-            ...itemData,
-            status: 'AVAILABLE', 
-            sellerId: user.id
-          },
-        });
-        return item;
-      }),
-      getUserItems: publicProcedure
-      .input(z.object({ address: z.string() }))
-      .query(async ({ input, ctx }) => {
-        const user = await ctx.prisma.user.findUnique({
-          where: { address: input.address },
-        });
 
-        if (!user) {
-          throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
-        }
+    getUserItems: publicProcedure
+    .input(z.object({ address: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const user = await ctx.prisma.user.findUnique({
+        where: { address: input.address },
+      });
 
-        const items = await ctx.prisma.item.findMany({
-          where: { sellerId: user.id },
-          orderBy: { createdAt: 'desc' },
-        });
+      if (!user) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+      }
 
-        return items;
-      }),
+      const items = await ctx.prisma.item.findMany({
+        where: { sellerId: user.id },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      return items;
+    }),
     searchItems: publicProcedure
     .input(z.object({ query: z.string() }))
     .query(async ({ input }) => {
@@ -107,6 +107,7 @@ export const itemsRouter = router({
       });
       return items;
     }),
+
     updateItem: protectedProcedure
     .input(z.object({
       id: z.string(),
@@ -147,6 +148,8 @@ export const itemsRouter = router({
 
       return updatedItem;
     }),
+
+
     updateItemStatus: protectedProcedure
     .input(z.object({
       id: z.string(),
@@ -201,12 +204,27 @@ export const itemsRouter = router({
       comment: z.string(),
       sellerId: z.string(),
       signature: z.string(),
-      nftTokenId: z.string(),
-      nftTransactionHash: z.string(),
+      nftTokenId: z.string().nullable(),
+      nftTransactionHash: z.string().nullable(),
       timestamp: z.string(),
+      transactionDetails: z.object({
+        chainId: z.number(),
+        blockNumber: z.string().nullable(),
+        transactionHash: z.string().nullable(),
+      }),
     }))
     .mutation(async ({ input, ctx }) => {
-      const { itemId, rating, comment, sellerId, signature, nftTokenId, nftTransactionHash, timestamp } = input;
+      const { 
+        itemId, 
+        rating, 
+        comment, 
+        sellerId, 
+        signature, 
+        nftTokenId, 
+        nftTransactionHash, 
+        timestamp,
+        transactionDetails
+      } = input;
 
       const item = await prisma.item.findUnique({
         where: { id: itemId },
@@ -236,20 +254,24 @@ export const itemsRouter = router({
           nftTokenId,
           nftTransactionHash,
           timestamp,
+          chainId: transactionDetails.chainId,
+          blockNumber: transactionDetails.blockNumber,
+          transactionHash: transactionDetails.transactionHash,
         },
       });
 
       return feedback;
     }),
 
-    getFeedback: protectedProcedure
-      .input(z.object({ itemId: z.string() }))
-      .query(async ({ input, ctx }) => {
-        const feedback = await ctx.prisma.feedback.findUnique({
-          where: { itemId: input.itemId },
-          include: { buyer: true },
-        });
+  getFeedback: protectedProcedure
+    .input(z.object({ itemId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const feedback = await ctx.prisma.feedback.findUnique({
+        where: { itemId: input.itemId },
+        include: { buyer: true },
+      });
 
-        return feedback;
-      }),
+      return feedback;
+    }),
+
   });

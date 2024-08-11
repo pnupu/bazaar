@@ -9,11 +9,10 @@ import { trpc } from '@/utils/trpc';
 import { useWeb3 } from "@/contexts/useWeb3";
 import { uploadImage } from '@/utils/imageUpload';
 import { LatLngExpression } from 'leaflet';
-import {
-  stringToHex,
-} from "viem";
+import { useChainId } from 'wagmi';
+import { baseSepolia } from 'viem/chains';
 import axios from 'axios';
-import { ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { ShieldCheckIcon, ExclamationTriangleIcon} from '@heroicons/react/24/outline';
 
 const Map = dynamic(() => import('@/components/Map'), {
   ssr: false,
@@ -44,6 +43,7 @@ export default function ItemDetailPage() {
   const [editedItem, setEditedItem] = useState(item);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { address, getUserAddress, sendCUSD, signTransaction, mintMinipayNFT } = useWeb3();
+  const chainId = useChainId();
 
   const [rating, setRating] = useState('');
   const [comment, setComment] = useState('');
@@ -113,7 +113,8 @@ export default function ItemDetailPage() {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading item</div>;
   if (!item) return <div>Item not found</div>;
-
+  
+  const isChainMismatch = item.chainId !== chainId;
   const sellerUsername = item.seller.username || item.seller.address;
   const isOwner = address === item.seller.address;
   const isBuyer = getOfferStatus.data?.buyerId === userQuery.data?.id;
@@ -126,7 +127,7 @@ export default function ItemDetailPage() {
 
 
   const handleSubmitFeedback = async () => {
-    if (!item || !address) return;
+    if (!item || !address || !item.txHash) return;
 
     try {
       // Prepare feedback data
@@ -138,6 +139,8 @@ export default function ItemDetailPage() {
         timestamp: new Date().toISOString(),
       };
 
+      await fetchTransactionDetails(item.txHash)
+
       // Sign the feedback data
       const messageToSign = JSON.stringify(feedbackData);
       const signature = await signTransaction(messageToSign);
@@ -146,29 +149,52 @@ export default function ItemDetailPage() {
         throw new Error('Failed to sign the message');
       }
 
-      // Prepare NFT metadata including the signature
-      const nftMetadata = {
-        ...feedbackData,
-        signature,
-      };
+      let nftTokenId = null;
+      let nftTransactionHash = null;
+      
 
-      // Mint NFT with signed feedback data
-      const nftMessage = JSON.stringify(nftMetadata);
-      const nftReceipt = await mintMinipayNFT(nftMessage);
 
-      if (!nftReceipt) {
-        throw new Error('Failed to mint NFT');
+
+      // Only mint NFT if not on Base Sepolia
+      if (chainId !== baseSepolia.id) {
+        // Prepare NFT metadata including the signature and transaction details
+        const nftMetadata = {
+          ...feedbackData,
+          signature,
+          transactionDetails: {
+            chainId: chainId,
+            blockNumber: item.txHash ? transactionDetails?.blockNumber : null,
+            transactionHash: item.txHash || null,
+          },
+        };
+
+        // Mint NFT with signed feedback data
+        const nftMessage = JSON.stringify(nftMetadata);
+        const nftReceipt = await mintMinipayNFT(nftMessage);
+
+        if (!nftReceipt) {
+          throw new Error('Failed to mint NFT');
+        }
+
+        nftTokenId = nftReceipt.logs[0]?.topics[3];
+        nftTransactionHash = nftReceipt.transactionHash;
+
+        if (!nftTokenId) {
+          throw new Error('Failed to extract token ID from NFT receipt');
+        }
       }
-      const tokenId = nftReceipt.logs[0]?.topics[3];
-      if (!tokenId) {
-        throw new Error('Failed to extract token ID from NFT receipt');
-      }
-      // Submit feedback with NFT information
+
+      // Submit feedback with NFT information (if available)
       await addFeedbackMutation.mutateAsync({
         ...feedbackData,
         signature,
-        nftTokenId: tokenId,
-        nftTransactionHash: nftReceipt.transactionHash,
+        nftTokenId,
+        nftTransactionHash,
+        transactionDetails: {
+          chainId: chainId,
+          blockNumber: transactionDetails?.blockNumber ?? null,
+          transactionHash: item.txHash || null,
+        },
       });
 
       alert('Feedback submitted successfully!');
@@ -178,6 +204,7 @@ export default function ItemDetailPage() {
       alert('Failed to submit feedback. Please try again.');
     }
   };
+
   const startChat = async () => {
     const conversation = await getOrCreateConversation.mutateAsync({ itemId: item.id });
     router.push(`/chats/${conversation.id}`);
@@ -300,6 +327,16 @@ export default function ItemDetailPage() {
   return (
     <div className="flex flex-col items-center p-4">
       <div className="w-full max-w-md">
+      {isChainMismatch && (
+          <div className="mb-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700">
+            <div className="flex items-center">
+              <ExclamationTriangleIcon className="h-5 w-5 mr-2" />
+              <p>
+                This item is on a different network. Please switch to the correct network to interact with this item.
+              </p>
+            </div>
+          </div>
+        )}
       <div className="mb-4 p-4 bg-gray-100 rounded-lg">
       <div className="flex items-center mb-2">
             <img
@@ -452,7 +489,7 @@ export default function ItemDetailPage() {
                   title={isSending ? "Processing..." : "Buy Now"}
                   onClick={handleBuyNow}
                   widthFull
-                  disabled={isSending}
+                  disabled={isSending || isChainMismatch}
                   className='bg-gradient-to-r from-[#fcb603] to-[#f98307]'
                 />
               </div>
@@ -463,6 +500,7 @@ export default function ItemDetailPage() {
                 onClick={startChat}
                 widthFull
                 className='bg-gradient-to-r from-[#fcb603] to-[#f98307]'
+                disabled={isChainMismatch}
               />
             </div>
           </>

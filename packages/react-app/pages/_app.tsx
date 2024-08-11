@@ -6,7 +6,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { injectedWallet } from "@rainbow-me/rainbowkit/wallets";
 import type { AppProps } from "next/app";
 import { WagmiProvider, createConfig, http } from "wagmi";
-import { celo, celoAlfajores } from "wagmi/chains";
+import { celo, celoAlfajores, baseSepolia } from "wagmi/chains";
 import Layout from "../components/Layout";
 import { trpc } from '../utils/trpc';
 import { AuthProvider } from '../contexts/AuthContext';
@@ -30,17 +30,17 @@ const connectors = connectorsForWallets(
 
 const config = createConfig({
   connectors,
-  chains: [celo, celoAlfajores],
+  chains: [celo, celoAlfajores, baseSepolia],
   transports: {
     [celo.id]: http(),
     [celoAlfajores.id]: http(),
+    [baseSepolia.id]: http(),
   },
 });
 
 const queryClient = new QueryClient();
 
 const LeafletCSS = dynamic(() => import('../components/LeafletCSS'), { ssr: false });
-
 
 function App({ Component, pageProps }: AppProps) {
   return (

@@ -25,6 +25,7 @@ model Offer {
   conversation   Conversation @relation(fields: [conversationId], references: [id])
   itemId         String
   item           Item         @relation(fields: [itemId], references: [id])
+  chainId        Int          @default(44787) //Celo testnet
 }
 
 model User {
@@ -64,22 +65,27 @@ enum ItemStatus {
 }
 
 model Feedback {
-  id        String   @id @default(cuid())
-  rating    Int
-  comment   String
-  signature String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  item      Item     @relation(fields: [itemId], references: [id])
-  itemId    String   @unique
-  buyer     User     @relation("BuyerFeedback", fields: [buyerId], references: [id])
-  buyerId   String
-  seller    User     @relation("SellerFeedback", fields: [sellerId], references: [id])
-  sellerId  String
-  nftTokenId         String
-  nftTransactionHash String
+  id                 String   @id @default(cuid())
+  rating             Int
+  comment            String
+  signature          String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  item               Item     @relation(fields: [itemId], references: [id])
+  itemId             String   @unique
+  buyer              User     @relation("BuyerFeedback", fields: [buyerId], references: [id])
+  buyerId            String
+  seller             User     @relation("SellerFeedback", fields: [sellerId], references: [id])
+  sellerId           String
+  nftTokenId         String?
+  nftTransactionHash String?
   timestamp          String
+  chainId            Int      @default(44787) //Celo testnet
+  blockNumber        String?
+  transactionHash    String?
 }
+
+
 
 model Item {
   id            String         @id @default(cuid())
@@ -95,6 +101,7 @@ model Item {
   placeName     String?
   sellerId      String
   txHash        String?
+  chainId       Int            @default(44787) //Celo testnet
   seller        User           @relation(fields: [sellerId], references: [id])
   conversations Conversation[]
   offers        Offer[]
