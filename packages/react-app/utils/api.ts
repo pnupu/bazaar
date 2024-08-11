@@ -14,7 +14,7 @@ export const useCreateItem = () => {
 };
 
 export const useSearchItems = (query: string) => {
-  return trpc.items.searchItems.useQuery({ query }, { enabled: !!query });
+  return trpc.items.searchItems.useQuery({ query });
 };
 
 export const useUpdateItem = () => {

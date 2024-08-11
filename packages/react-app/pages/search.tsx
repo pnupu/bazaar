@@ -1,6 +1,5 @@
 // pages/search.tsx
-
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useCallback, useContext, useRef  } from "react";
 import { useSearchItems } from "@/utils/api";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -24,7 +23,8 @@ type Listing = {
 export default function SearchPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const { data: searchResults, isLoading } = useSearchItems(searchQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const { data: searchResults, isLoading } = useSearchItems(debouncedQuery);
   const [displayedItems, setDisplayedItems] = useState<Listing[]>([]);
   const { setIsSearchVisible } = useContext(SearchContext);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -46,9 +46,26 @@ export default function SearchPage() {
 
   useEffect(() => {
     if (router.query.q) {
-      setSearchQuery(router.query.q as string);
+      const query = router.query.q as string;
+      if (query.trim()) {
+        setSearchQuery(query);
+        setDebouncedQuery(query);
+      }
     }
   }, [router.query]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+      if (searchQuery.trim()) {
+        router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`, undefined, { shallow: true });
+      } else {
+        router.push('/search', undefined, { shallow: true });
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, router]);
 
   useEffect(() => {
     if (searchResults) {
@@ -60,21 +77,20 @@ export default function SearchPage() {
     }
   }, [searchResults]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-  };
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  }, []);
 
   return (
     <div className="flex flex-col items-center p-4">
       <HeaderWithBackButton title="Search Items" />
-      <form onSubmit={handleSearch} className="relative w-full mb-4 focus:ring-[#f98307] focus:border-[#f98307]">
+      <div className="relative w-full mb-4 focus:ring-[#f98307] focus:border-[#f98307]">
         <input
           ref={searchInputRef}
           type="text"
           placeholder="Search items..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={handleSearchChange}
           className="w-full border-2 pr-10 pl-4 py-3 rounded-full bg-white text-gray-900 placeholder-gray-500"
         />
         <button 
@@ -83,7 +99,7 @@ export default function SearchPage() {
           >
             <MagnifyingGlassIcon className="h-6 w-6 text-[#f98307]" aria-hidden="true" />
         </button>
-      </form>
+      </div>
       
       {isLoading ? (
          <Spinner />
@@ -108,7 +124,7 @@ export default function SearchPage() {
           ))}
         </div>
       )}
-      {displayedItems.length === 0 && !isLoading && (
+      {displayedItems.length === 0 && !isLoading && debouncedQuery && (
         <p>No items found. Try a different search term.</p>
       )}
     </div>

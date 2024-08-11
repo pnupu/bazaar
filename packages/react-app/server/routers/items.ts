@@ -97,6 +97,18 @@ export const itemsRouter = router({
     searchItems: publicProcedure
     .input(z.object({ query: z.string() }))
     .query(async ({ input }) => {
+      if(input.query.length < 2){
+        return await prisma.item.findMany({
+          where: {
+            status: 'AVAILABLE'
+          },
+          take: 20,
+          orderBy: {
+            updatedAt: "desc"
+          }
+        });
+      }
+
       const items = await prisma.item.findMany({
         where: {
           OR: [
