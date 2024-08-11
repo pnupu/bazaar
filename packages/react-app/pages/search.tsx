@@ -1,6 +1,4 @@
-// pages/search.tsx
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchItems } from "@/utils/api";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -21,14 +19,32 @@ type Listing = {
 export default function SearchPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const { data: searchResults, isLoading } = useSearchItems(searchQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const { data: searchResults, isLoading } = useSearchItems(debouncedQuery);
   const [displayedItems, setDisplayedItems] = useState<Listing[]>([]);
 
   useEffect(() => {
     if (router.query.q) {
-      setSearchQuery(router.query.q as string);
+      const query = router.query.q as string;
+      if (query.trim()) {
+        setSearchQuery(query);
+        setDebouncedQuery(query);
+      }
     }
   }, [router.query]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+      if (searchQuery.trim()) {
+        router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`, undefined, { shallow: true });
+      } else {
+        router.push('/search', undefined, { shallow: true });
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, router]);
 
   useEffect(() => {
     if (searchResults) {
@@ -40,10 +56,9 @@ export default function SearchPage() {
     }
   }, [searchResults]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-  };
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  }, []);
 
   return (
     <div className="flex flex-col items-center p-4">
@@ -54,15 +69,15 @@ export default function SearchPage() {
           <div className="w-8"></div>
         </div>
       </div>
-      <form onSubmit={handleSearch} className="w-full mb-4">
+      <div className="w-full mb-4">
         <input
           type="text"
           placeholder="Search items..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={handleSearchChange}
           className="w-full p-2 border rounded"
         />
-      </form>
+      </div>
       
       {isLoading ? (
          <Spinner />
@@ -87,7 +102,7 @@ export default function SearchPage() {
           ))}
         </div>
       )}
-      {displayedItems.length === 0 && !isLoading && (
+      {displayedItems.length === 0 && !isLoading && debouncedQuery && (
         <p>No items found. Try a different search term.</p>
       )}
     </div>
