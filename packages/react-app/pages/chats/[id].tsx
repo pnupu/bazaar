@@ -6,6 +6,7 @@ import PrimaryButton from '@/components/Button';
 import pusherClient from '../../utils/pusher';
 import Link from 'next/link';
 import ChatHeader from '@/components/ChatHeader';
+import { useChainId } from 'wagmi';
 import ItemPrice from '@/components/ItemPrice';
 import Spinner from '@/components/Spinner';
 
@@ -49,6 +50,7 @@ const ChatPage = () => {
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+  const chainId = useChainId();
 
   const { mutate: makeOffer } = trpc.chat.makeOffer.useMutation({
     onSuccess: () => refetch()
@@ -102,7 +104,7 @@ const ChatPage = () => {
 
   const handleMakeOffer = (amount: number) => {
     if (id) {
-      makeOffer({ conversationId: id as string, amount });
+      makeOffer({ conversationId: id as string, amount, chainId });
       setIsOfferModalOpen(false);
     }
   };
