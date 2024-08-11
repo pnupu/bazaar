@@ -51,17 +51,25 @@ const ChatPage = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const chainId = useChainId();
+  const [localMessages, setLocalMessages] = useState<any[]>([]);
 
   const { mutate: makeOffer } = trpc.chat.makeOffer.useMutation({
     onSuccess: () => refetch()
   });
-  const { mutate: acceptOffer } = trpc.chat.acceptOffer.useMutation({
+  const { mutate: acceptOffer, isLoading: acceptOfferLoading } = trpc.chat.acceptOffer.useMutation({
     onSuccess: () => refetch()
   });
 
   const { data: conversation, isLoading, refetch } = trpc.chat.getConversation.useQuery(
     { conversationId: id as string },
-    { enabled: !!id }
+    { 
+      enabled: !!id,
+      onSuccess: (data) => {
+        if (data) {
+          setLocalMessages(data.messages);
+        }
+      }
+    }
   );
 
   const userQuery = trpc.user.getUserWithAddress.useQuery({ address: address ?? "" }, {
@@ -92,13 +100,34 @@ const ChatPage = () => {
   }, [conversation, refetch]);
 
   useEffect(() => {
+    if (conversation && pusherClient) {
+      const channel = pusherClient.subscribe(`private-conversation-${conversation.id}`);
+      channel.bind('new-offer', refetch);
+      channel.bind('offer-accepted', refetch);
+  
+      return () => {
+        if (pusherClient) {
+          pusherClient.unsubscribe(`private-conversation-${conversation.id}`);
+        }
+      };
+    }
+  }, [conversation]);
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversation?.messages]);
 
   const handleSendMessage = () => {
-    if (message.trim() && id) {
-      sendMessage({ conversationId: id as string, content: message });
+    if (message.trim() && id && userQuery.data) {
+      const newMessage = {
+        id: Date.now().toString(),
+        content: message,
+        senderId: userQuery.data.id,
+        createdAt: new Date().toISOString(),
+      };
+      setLocalMessages(prevMessages => [...prevMessages, newMessage]);
       setMessage('');
+      
+      sendMessage({ conversationId: id as string, content: message });
     }
   };
 
@@ -136,34 +165,44 @@ const ChatPage = () => {
       {/* Chat area - scrollable */}
       <div className="flex-1 overflow-y-auto pb-40 pt-4" ref={messagesEndRef}>
         {conversation.offers.map(offer => (
-           <div key={offer.id} className="mb-4 p-3 bg-amber-300 shadow w-[70%] rounded-2xl text-center mx-auto">
-           {offer.buyerId === userQuery.data?.id ? (
-             <p className="font-semibold">You made an offer: ${offer.amount}</p>
-           ) : (
-             <p className="font-semibold">Buyer made an offer: ${offer.amount}</p>
-           )}
-           
-           {offer.status === 'PENDING' && (
-             <>
-               {offer.sellerId === userQuery.data?.id ? (
-                 <button 
-                   onClick={() => handleAcceptOffer(offer.id)}
-                   className="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
-                 >
-                   Accept Offer
-                 </button>
-               ) : (
-                 <p className="text-gray-600 mt-1">Waiting for seller to accept</p>
-               )}
-             </>
-           )}
-           
-           {offer.status === 'ACCEPTED' && (
-             <p className="text-green-600 mt-1 font-semibold">Offer accepted!</p>
-           )}
-         </div>
+            <div key={offer.id} className="mb-4 p-3 bg-amber-300 shadow w-[70%] rounded-2xl text-center mx-auto">
+            {offer.buyerId === userQuery.data?.id ? (
+              <p className="font-semibold">You made an offer: ${offer.amount}</p>
+            ) : (
+              <p className="font-semibold">Buyer made an offer: ${offer.amount}</p>
+            )}
+            
+            {offer.status === 'PENDING' && (
+              <>
+                {offer.sellerId === userQuery.data?.id ? (
+                  <button 
+                    onClick={() => handleAcceptOffer(offer.id)}
+                    className="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                    disabled={acceptOfferLoading}
+                  >
+                    Accept Offer
+                  </button>
+                ) : (
+                  <p className="text-gray-600 mt-1">Waiting for seller to accept</p>
+                )}
+              </>
+            )}
+            
+            {offer.status === 'ACCEPTED' && (
+              <>
+                <p className="text-green-600 mt-1 font-semibold">Offer accepted!</p>
+                <Link href={`/item/${conversation.item.id}`}>
+                  <button 
+                    className="bg-gradient-to-r from-[#fcb603] to-[#f98307] text-white px-4 py-2 rounded-lg mt-1"
+                  >
+                    Go to Item Page
+                  </button>
+                </Link>
+              </>
+            )}
+          </div>
         ))}
-        {conversation.messages.map(msg => (
+        {localMessages.map(msg => (
           <div key={msg.id} className={`mb-4 ${msg.senderId === userQuery.data?.id ? 'flex justify-end' : 'flex justify-start'}`}>
             <div className="flex flex-col items-end max-w-[70%] pl-2 pr-2">
               <div className={`px-3 py-2 rounded-2xl ${
@@ -197,16 +236,19 @@ const ChatPage = () => {
             Send
           </button>
         </div>
-        <div className="flex justify-between items-center">
+        {!isUserSeller && conversation.item.status === "SOLD" && (
+
+          <div className="flex justify-between items-center">
           <button
             onClick={() => setIsOfferModalOpen(true)}
             disabled={isUserSeller || conversation.item.status === 'SOLD'}
             className="bg-gradient-to-r from-[#fcb603] to-[#f98307] text-white px-4 py-2 rounded-lg"
-          >
+            >
             Make Offer
           </button>
-          <span>Current Price: ${<ItemPrice priceCUSD={Number(conversation.item.price.toFixed(2))} />}</span>
+          <span>Current Price: {<ItemPrice priceCUSD={Number(conversation.item.price.toFixed(2))} />}</span>
         </div>
+          )}
       </div>
 
       {/* Offer Modal */}

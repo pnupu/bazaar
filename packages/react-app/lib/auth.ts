@@ -16,8 +16,15 @@ export async function authenticateUser(req: NextApiRequest) {
 
   // If the user doesn't exist, create a new one
   if (!user) {
+    const defaultUsername = `User_${address.slice(0, 6)}`;
+    const avatarUrl = `https://api.dicebear.com/6.x/avataaars/svg?seed=${address}`;
+
     return await prisma.user.create({
-      data: { address },
+      data: {
+        address,
+        username: defaultUsername,
+        avatarUrl: avatarUrl,
+      },
     });
   }
 

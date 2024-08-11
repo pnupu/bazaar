@@ -200,7 +200,6 @@ export default function ItemDetailPage() {
       });
 
       alert('Feedback submitted successfully!');
-      router.push('/'); // Redirect to home page or wherever appropriate
     } catch (error) {
       console.error('Error submitting feedback:', error);
       alert('Failed to submit feedback. Please try again.');
@@ -266,8 +265,6 @@ export default function ItemDetailPage() {
 
       // Show a success message
       alert('Purchase successful! The item is now marked as sold.');
-
-      router.push('/'); 
     } catch (error) {
       console.error('Error during purchase:', error);
       alert('There was an error during the purchase. Please try again.');

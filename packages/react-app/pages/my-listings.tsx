@@ -67,7 +67,7 @@ export default function MyListingsPage() {
                   </div>
                   <div className="flex-grow">
                     <p className="font-semibold">{item.title}</p>
-                    <p className="text-sm text-gray-500">Price: ${<ItemPrice priceCUSD={Number(item.price.toFixed(2))} />}</p>
+                    <p className="text-sm text-gray-500">Price: {<ItemPrice priceCUSD={Number(item.price.toFixed(2))} />}</p>
                   </div>
                   <div className="text-sm text-gray-500">
                     Status: {item.status}
