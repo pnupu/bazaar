@@ -61,7 +61,7 @@ export default function MyListingsPage() {
               )}
               <h3 className="text-lg font-semibold">{item.title}</h3>
               <p className="text-gray-600">{item.description}</p>
-              <p className="text-gray-800 mt-2">Price: ${<ItemPrice priceCUSD={Number(item.price.toFixed(2))} />}</p>
+              <p className="text-gray-800 mt-2">Price: {<ItemPrice priceCUSD={Number(item.price.toFixed(2))} />}</p>
               <p className="text-gray-600 mt-1">Status: {item.status}</p>
             </div>
           </Link>

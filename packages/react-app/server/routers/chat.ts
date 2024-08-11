@@ -206,7 +206,7 @@ export const chatRouter = router({
           }
         }
       })
-
+      await pusher.trigger(`private-conversation-${input.conversationId}`, 'new-offer', offer);
       return offer;
     }),
 
@@ -217,7 +217,7 @@ export const chatRouter = router({
     .mutation(async ({ input, ctx }) => {
       const offer = await prisma.offer.findUnique({
         where: { id: input.offerId },
-        include: { item: true },
+        include: { item: true, conversation: true },
       });
 
       if (!offer) {
@@ -236,11 +236,9 @@ export const chatRouter = router({
       // Update item status to SOLD
       await prisma.item.update({
         where: { id: offer.itemId },
-        data: { status: 'SOLD' },
+        data: { status: 'OFFER_ACCEPTED' },
       });
-
-      // Trigger Pusher event for accepted offer
-      // ... (implement Pusher trigger here)
+      await pusher.trigger(`private-conversation-${offer.conversation.id}`, 'offer-accepted', updatedOffer);
 
       return updatedOffer;
     }),

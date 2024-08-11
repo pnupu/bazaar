@@ -1,6 +1,6 @@
 // pages/chats/index.tsx
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { trpc } from '../../utils/trpc';
@@ -8,13 +8,20 @@ import { useWeb3 } from "@/contexts/useWeb3";
 
 const ChatListPage = () => {
   const router = useRouter();
-  const { address } = useWeb3();
+  const { address, getUserAddress } = useWeb3();
   const { data: conversations, isLoading } = trpc.chat.getConversations.useQuery();
+
+  useEffect(() => {
+    getUserAddress()
+  }, [])
+
+
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen">Loading chats...</div>;
   }
 
+  
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Your Conversations</h1>
@@ -22,7 +29,7 @@ const ChatListPage = () => {
         <div className="space-y-4">
           {conversations.map((conv) => {
             const isUserSeller = conv.seller.address === address;
-            const otherUser = isUserSeller ? conv.buyer : conv.seller;
+            const otherUser = conv.seller.address === address ? conv.buyer : conv.seller;
             return (
               <Link href={`/chats/${conv.id}`} key={conv.id}>
                 <div className="border bg-white p-4 rounded-lg cursor-pointer hover:bg-gray-100">
