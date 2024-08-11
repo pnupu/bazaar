@@ -16,7 +16,7 @@ import { ShieldCheckIcon, ExclamationTriangleIcon} from '@heroicons/react/24/out
 import ItemPrice from '@/components/ItemPrice';
 import Spinner from '@/components/Spinner';
 import Modal from '@/components/InfoModal';
-import { SearchContext, useSearch } from '@/contexts/SearchContext';
+import { useSearch } from '@/contexts/SearchContext';
 
 const Map = dynamic(() => import('@/components/Map'), {
   ssr: false,
