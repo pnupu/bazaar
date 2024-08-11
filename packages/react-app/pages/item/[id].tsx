@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useItem, useUpdateItem, useUpdateItemStatus } from '@/utils/api';
 import PrimaryButton from '@/components/Button';
 import dynamic from 'next/dynamic';
@@ -16,6 +16,7 @@ import { ShieldCheckIcon, ExclamationTriangleIcon} from '@heroicons/react/24/out
 import ItemPrice from '@/components/ItemPrice';
 import Spinner from '@/components/Spinner';
 import Modal from '@/components/InfoModal';
+import { SearchContext } from '@/contexts/SearchContext';
 
 const Map = dynamic(() => import('@/components/Map'), {
   ssr: false,
@@ -63,6 +64,9 @@ export default function ItemDetailPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [modalMessage, setModalMessage] = useState('');
+
+  const { setIsSearchVisible } = useContext(SearchContext);
+  setIsSearchVisible(true)
 
 
   const addFeedbackMutation = trpc.items.addFeedback.useMutation();
@@ -387,7 +391,7 @@ export default function ItemDetailPage() {
             width={400}
             height={300}
             className="w-full h-auto rounded-lg shadow-md"
-          />
+            />
             <input
               type="file"
               accept="image/*"
@@ -559,7 +563,7 @@ export default function ItemDetailPage() {
       )}
 
       {getFeedbackQuery.data && (
-        <div className="mt-6 w-full max-w-md">
+        <div className="mt-6 w-full max-w-md bg-white p-4 border rounded-lg">
           <h2 className="text-xl font-bold mb-4">Feedback</h2>
           <p>Rating: {getFeedbackQuery.data.rating}/5</p>
           <p>Comment: {getFeedbackQuery.data.comment}</p>
@@ -567,24 +571,42 @@ export default function ItemDetailPage() {
         </div>
       )}
       {item?.status === 'SOLD' && transactionDetails && (
-          <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-            <h2 className="text-xl font-bold mb-2">Transaction Details</h2>
-            <p>Block Number: {transactionDetails.blockNumber}</p>
-            <p>Timestamp: {new Date(parseInt(transactionDetails.timeStamp) * 1000).toLocaleString()}</p>
-            <p>From: {transactionDetails.from}</p>
-            <p>To: {transactionDetails.to}</p>
-            <p>Value: {parseFloat(transactionDetails.value) / 1e18} CELO</p>
-            <p>Gas Used: {transactionDetails.gasUsed}</p>
-            <p>Confirmations: {transactionDetails.confirmations}</p>
-            <a 
-              href={`https://explorer.celo.org/alfajores/tx/${item.txHash}`} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:text-blue-700"
-            >
-              View on Celo Explorer
-            </a>
+          <div className="mt-8 p-6 bg-white shadow-md rounded-lg border border-gray-200">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Transaction Details</h2>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-gray-700">
+            <span className="font-medium">Block Number:</span>
+            <span>{transactionDetails.blockNumber}</span>
+            
+            <span className="font-medium">Timestamp:</span>
+            <span>{new Date(parseInt(transactionDetails.timeStamp) * 1000).toLocaleString()}</span>
+            
+            <span className="font-medium">From:</span>
+            <span className="break-all">{transactionDetails.from}</span>
+            
+            <span className="font-medium">To:</span>
+            <span className="break-all">{transactionDetails.to}</span>
+            
+            <span className="font-medium">Value:</span>
+            <span>{parseFloat(transactionDetails.value) / 1e18} CELO</span>
+            
+            <span className="font-medium">Gas Used:</span>
+            <span>{transactionDetails.gasUsed}</span>
+            
+            <span className="font-medium">Confirmations:</span>
+            <span>{transactionDetails.confirmations}</span>
           </div>
+          <a 
+            href={`https://explorer.celo.org/alfajores/tx/${item.txHash}`} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="block mt-4 text-blue-600 hover:text-blue-800 font-medium"
+          >
+            View on Celo Explorer
+          </a>
+        </div>
+        
+        
+        
         )}
       <Modal
         isOpen={modalOpen}

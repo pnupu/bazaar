@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import { useRouter } from 'next/router';
 import PrimaryButton from "@/components/Button";
 import { useWeb3 } from "@/contexts/useWeb3";
@@ -10,6 +10,7 @@ import { IDKitWidget, VerificationLevel } from '@worldcoin/idkit';
 import Spinner from '@/components/Spinner';
 import HeaderWithBackButton from '@/components/SearchHeaderWithBackButton';
 import Modal from '@/components/InfoModal';
+import { SearchContext } from '@/contexts/SearchContext';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -21,6 +22,9 @@ export default function SettingsPage() {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { currency, toggleCurrency } = useCurrency();
+
+  const { setIsSearchVisible } = useContext(SearchContext);
+  setIsSearchVisible(true)
 
 
   const [modalOpen, setModalOpen] = useState(false);
