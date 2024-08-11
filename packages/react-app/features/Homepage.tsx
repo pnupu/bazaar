@@ -13,7 +13,7 @@ import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Input } from '@headlessui/react'
 import ItemPrice from "@/components/ItemPrice";
 import Spinner from "@/components/Spinner";
-import { SearchContext } from "@/contexts/SearchContext";
+import { useSearch } from "@/contexts/SearchContext";
 
 type Listing = {
   status: string;
@@ -34,24 +34,28 @@ export default function BazaarHomepage() {
   const [isFocused, setIsFocused] = useState(false);
 
   const [highlightedItems, setHighlightedItems] = useState<Listing[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
 
-  const { setIsSearchVisible } = useContext(SearchContext);
+  const [searchQuery, setSearchQuery] = useState('');
+  const { setIsSearchElementPresent } = useSearch();
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
       if (searchInputRef.current) {
         const rect = searchInputRef.current.getBoundingClientRect();
-        setIsSearchVisible(rect.top > 0 && rect.bottom <= window.innerHeight);
+        const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+        setIsSearchElementPresent(isVisible);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
-    handleScroll();
+    handleScroll(); // Call once to set initial state
 
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [setIsSearchVisible]);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      setIsSearchElementPresent(false);
+    };
+  }, [setIsSearchElementPresent]);
 
   const handleSellClick = () => {
     router.push('/create-item');

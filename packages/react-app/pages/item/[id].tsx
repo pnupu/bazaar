@@ -16,7 +16,7 @@ import { ShieldCheckIcon, ExclamationTriangleIcon} from '@heroicons/react/24/out
 import ItemPrice from '@/components/ItemPrice';
 import Spinner from '@/components/Spinner';
 import Modal from '@/components/InfoModal';
-import { SearchContext } from '@/contexts/SearchContext';
+import { SearchContext, useSearch } from '@/contexts/SearchContext';
 
 const Map = dynamic(() => import('@/components/Map'), {
   ssr: false,
@@ -65,8 +65,11 @@ export default function ItemDetailPage() {
   const [modalTitle, setModalTitle] = useState('');
   const [modalMessage, setModalMessage] = useState('');
 
-  const { setIsSearchVisible } = useContext(SearchContext);
-  setIsSearchVisible(true)
+  const { setIsSearchElementPresent } = useSearch();
+
+  useEffect(() => {
+    setIsSearchElementPresent(false);
+  }, [setIsSearchElementPresent]);
 
 
   const addFeedbackMutation = trpc.items.addFeedback.useMutation();
@@ -571,7 +574,7 @@ export default function ItemDetailPage() {
         </div>
       )}
       {item?.status === 'SOLD' && transactionDetails && (
-          <div className="mt-8 p-6 bg-white shadow-md rounded-lg border border-gray-200">
+          <div className="mt-6 p-6 bg-white shadow-md rounded-lg border border-gray-200">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">Transaction Details</h2>
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-gray-700">
             <span className="font-medium">Block Number:</span>

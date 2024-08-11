@@ -8,7 +8,7 @@ import ItemPrice from "@/components/ItemPrice";
 import Spinner from "@/components/Spinner";
 import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
 import HeaderWithBackButton from "@/components/SearchHeaderWithBackButton";
-import { SearchContext } from "@/contexts/SearchContext";
+import { useSearch } from "@/contexts/SearchContext";
 
 type Listing = {
   id: string;
@@ -26,23 +26,26 @@ export default function SearchPage() {
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const { data: searchResults, isLoading } = useSearchItems(debouncedQuery);
   const [displayedItems, setDisplayedItems] = useState<Listing[]>([]);
-  const { setIsSearchVisible } = useContext(SearchContext);
+  const { setIsSearchElementPresent } = useSearch();
   const searchInputRef = useRef<HTMLInputElement>(null);
-
 
   useEffect(() => {
     const handleScroll = () => {
       if (searchInputRef.current) {
         const rect = searchInputRef.current.getBoundingClientRect();
-        setIsSearchVisible(rect.top > 0 && rect.bottom <= window.innerHeight);
+        const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+        setIsSearchElementPresent(isVisible);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
-    handleScroll();
+    handleScroll(); // Call once to set initial state
 
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [setIsSearchVisible]);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      setIsSearchElementPresent(false);
+    };
+  }, [setIsSearchElementPresent]);
 
   useEffect(() => {
     if (router.query.q) {

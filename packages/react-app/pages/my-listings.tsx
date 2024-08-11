@@ -5,7 +5,7 @@ import { trpc } from '../utils/trpc';
 import BackButton from '@/components/BackButton';
 import Link from 'next/link';
 import ItemPrice from '@/components/ItemPrice';
-import { SearchContext } from '@/contexts/SearchContext';
+import { useSearch } from '@/contexts/SearchContext';
 import Spinner from '@/components/Spinner';
 
 type Item = {
@@ -23,8 +23,11 @@ export default function MyListingsPage() {
   const [listings, setListings] = useState<Item[]>([]);
   const [boughtItems, setBoughtItems] = useState<Item[]>([]);
 
-  const { setIsSearchVisible } = useContext(SearchContext);
-  setIsSearchVisible(true)
+  const { setIsSearchElementPresent } = useSearch();
+
+  useEffect(() => {
+    setIsSearchElementPresent(false);
+  }, [setIsSearchElementPresent]);
 
   const userListingsQuery = trpc.items.getUserItems.useQuery(
     { address: address || '' },

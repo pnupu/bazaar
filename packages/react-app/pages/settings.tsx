@@ -10,7 +10,7 @@ import { IDKitWidget, VerificationLevel } from '@worldcoin/idkit';
 import Spinner from '@/components/Spinner';
 import HeaderWithBackButton from '@/components/SearchHeaderWithBackButton';
 import Modal from '@/components/InfoModal';
-import { SearchContext } from '@/contexts/SearchContext';
+import { useSearch } from '@/contexts/SearchContext';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -23,8 +23,11 @@ export default function SettingsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { currency, toggleCurrency } = useCurrency();
 
-  const { setIsSearchVisible } = useContext(SearchContext);
-  setIsSearchVisible(true)
+  const { setIsSearchElementPresent } = useSearch();
+
+  useEffect(() => {
+    setIsSearchElementPresent(false);
+  }, [setIsSearchElementPresent]);
 
 
   const [modalOpen, setModalOpen] = useState(false);

@@ -9,7 +9,7 @@ import ChatHeader from '@/components/ChatHeader';
 import { useChainId } from 'wagmi';
 import ItemPrice from '@/components/ItemPrice';
 import Spinner from '@/components/Spinner';
-import { SearchContext } from '@/contexts/SearchContext';
+import { useSearch } from '@/contexts/SearchContext';
 
 
 interface OfferModalProps {
@@ -54,8 +54,11 @@ const ChatPage = () => {
   const chainId = useChainId();
   const [localMessages, setLocalMessages] = useState<any[]>([]);
 
-  const { setIsSearchVisible } = useContext(SearchContext);
-  setIsSearchVisible(true)
+  const { setIsSearchElementPresent } = useSearch();
+
+  useEffect(() => {
+    setIsSearchElementPresent(false);
+  }, [setIsSearchElementPresent]);
 
   const { mutate: makeOffer } = trpc.chat.makeOffer.useMutation({
     onSuccess: () => refetch()

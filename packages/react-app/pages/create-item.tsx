@@ -14,7 +14,7 @@ interface LocationData {
 }
 
 import dynamic from 'next/dynamic';
-import { SearchContext } from '@/contexts/SearchContext';
+import { useSearch } from '@/contexts/SearchContext';
 
 const Map = dynamic(() => import('@/components/Map'), {
   ssr: false,
@@ -73,11 +73,11 @@ export default function CreateItemPage() {
     const city = ninthOrLastComponent;
     const position: [number, number] = [parseFloat(lat), parseFloat(lon)];
 
-    const { setIsSearchVisible } = useContext(SearchContext);
+    const { setIsSearchElementPresent } = useSearch();
+
     useEffect(() => {
-      
-         setIsSearchVisible(false)
-    }, []);
+      setIsSearchElementPresent(false);
+    }, [setIsSearchElementPresent]);
 
     setCoordinates(position);
     setLocationName(city + ", " + country)
